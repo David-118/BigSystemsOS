@@ -34,9 +34,9 @@ link:
 
 
 setup:
-	@mkdir $(BUILDDIR)
-	@mkdir $(SRCDIR)
-	@mkdir $(OBJDIR)
+	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(SRCDIR)
+	@mkdir -p $(OBJDIR)
 
 buildimg:
 	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750

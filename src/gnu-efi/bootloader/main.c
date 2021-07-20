@@ -4,6 +4,41 @@
 
 typedef unsigned long long size_t;
 
+typedef struct {
+	void* BaseAddress;
+	size_t BufferSize;
+	unsigned int Width;
+	unsigned int Height;
+	unsigned int PixelsPerScanLine;
+} Framebuffer;
+
+Framebuffer framebuffer;
+
+Framebuffer* initGOP() {
+	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
+	EFI_STATUS status;
+
+	status = uefi_call_wrapper(BS->LocateProtocol, 3, &gopGuid, NULL, (void**)&gop);
+	if(EFI_ERROR(status)) {
+		Print(L"[FAIL] Unable to locate GOP protocol\n\r");
+		return NULL;
+	} else {
+		Print(L"[ OK ] Located GOP\n\r");
+	}
+
+
+
+	framebuffer.BaseAddress = (void*)gop->Mode->FrameBufferBase;
+	framebuffer.BufferSize = gop->Mode->FrameBufferSize;
+	framebuffer.Width = gop->Mode->Info->HorizontalResolution;
+	framebuffer.Height = gop->Mode->Info->VerticalResolution;
+	framebuffer.PixelsPerScanLine = gop->Mode->Info->HorizontalResolution;
+
+	return &framebuffer;
+}
+
+
 EFI_FILE* LoadFile(EFI_FILE* Dir, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	EFI_FILE* LoadedFile;
 	
@@ -109,9 +144,25 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
 	Print(L"[ OK ] Kernel Loaded\n\r");
 
-	int (*KernelStart)() = ((__attribute__((sysv_abi)) int (*)() ) header.e_entry);
+	Framebuffer* newBuffer = initGOP();
+	
+	Print(L"Base: 0x%x\n\rSize: 0x%x \n\rWidth: %d\n\rHeight: %d\n\rPixelsPerScanLine: %d\n\r\n\r", 
+	newBuffer->BaseAddress, 
+	newBuffer->BufferSize, 
+	newBuffer->Width, 
+	newBuffer->Height, 
+	newBuffer->PixelsPerScanLine);
 
-	Print(L"%d\r\n", KernelStart());
+	unsigned int y = 50;
+	unsigned int BBP = 4;
+
+	for (unsigned int x = 0; x < newBuffer->Width / 2 * BBP; x++) {
+		*(unsigned int*)(x + (y * newBuffer->PixelsPerScanLine * BBP) + newBuffer->BaseAddress) = 0xffffffff;
+	}
+
+	//int (*KernelStart)() = ((__attribute__((sysv_abi)) int (*)() ) header.e_entry);
+
+	//Print(L"%d\r\n", KernelStart());
 
 	return EFI_SUCCESS; // Exit the UEFI application
 }
