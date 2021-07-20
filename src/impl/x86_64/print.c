@@ -70,7 +70,7 @@ void print_str(char* str) {
     for (size_t i = 0; 1; i++) {
         char character = (uint8_t) str[i];
         
-        if (character == "\0") {
+        if (character == '\0') {
             return;
         }
 
