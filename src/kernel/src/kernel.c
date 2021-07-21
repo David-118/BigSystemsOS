@@ -17,12 +17,12 @@
  */
 void _start(Framebuffer* framebuffer, PSF1_FONT* psf1_font) 
 {
-    // clearScreen(framebuffer, 0xffffffff);
+    //clearScreen(framebuffer, 0xffffffff);
     // setPixel(framebuffer, 10, 50, 0xffff0000);
     // fillRect(framebuffer, 10, 10, 50, 50, 0xffffff00);
     // fillRect(framebuffer, 100, 100, 80, 50, 0xff000000);
-     putChar(framebuffer, psf1_font, 0xffffff, 'G', 10, 10);
-    //setPixel(framebuffer, 10, 10, 0xffffffff);
+    drawString(framebuffer, psf1_font, 0xffffffff, "Hello\nWorld", 10, 10);
+    //setPixel(framebuffer, 10, 10, 0xfffffff);
     //fillRect(framebuffer, 10, 10, 20, 20, 0xffff0000);
 
     unsigned const BORDERWIDTH = 10;
@@ -132,7 +132,7 @@ void drawline(Framebuffer* framebuffer, int x0, int y0, int x1, int y1, unsigned
 /**
  * 
  */
-void putChar(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, char chr, unsigned int xOff, unsigned int yOff) 
+void drawChar(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, char chr, unsigned int xOff, unsigned int yOff) 
 {
     unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
     char* fontPtr = psf1_font->glyphBuffer + (chr * psf1_font->psf1_Header->charsize);
@@ -144,5 +144,24 @@ void putChar(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour
 
         }
         fontPtr++;
+    }
+}
+
+void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, char* str, unsigned int xOff, unsigned int yOff)  {
+    const unsigned int char_width = 8;
+    const unsigned int char_height = 16;
+    int x = 0, y = 0;
+    for (int i = 0; str[i]!='\0'; i++) {
+       
+        if (str[i]!='\n') 
+        {
+             drawChar(framebuffer, psf1_font, colour, str[i], xOff + x, yOff + y);
+            x += char_width;
+        } 
+        else
+        {
+            y+= char_height;
+            x = 0;
+        }
     }
 }
