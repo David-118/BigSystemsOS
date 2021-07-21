@@ -21,7 +21,7 @@ void _start(Framebuffer* framebuffer, PSF1_FONT* psf1_font)
     // setPixel(framebuffer, 10, 50, 0xffff0000);
     // fillRect(framebuffer, 10, 10, 50, 50, 0xffffff00);
     // fillRect(framebuffer, 100, 100, 80, 50, 0xff000000);
-    drawString(framebuffer, psf1_font, 0xffffffff, "Hello\nWorld", 10, 10);
+    drawString(framebuffer, psf1_font, 0xffffffff, int_to_string(-123), 10, 10);
     //setPixel(framebuffer, 10, 10, 0xfffffff);
     //fillRect(framebuffer, 10, 10, 20, 20, 0xffff0000);
 
@@ -29,6 +29,51 @@ void _start(Framebuffer* framebuffer, PSF1_FONT* psf1_font)
     //fillOutlinedRect(framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
 
 }
+
+
+char str_buffer[128];
+const char* uint_to_string(unsigned int value) {
+    unsigned int size;
+    unsigned int sizeTest = value;
+
+    while ((sizeTest / 10) > 0) {
+        sizeTest /= 10;
+        size++;
+    }        
+    int index = 0;
+    while (value > 0) {
+        str_buffer[size - index] = (value % 10) + '0';
+        index++;
+        value /= 10;
+    }
+    str_buffer[size + 1] = '\0';
+    return str_buffer;
+}
+
+const char* int_to_string(int value) {
+    int size;
+    int sizeTest = value;
+
+    while ((sizeTest / 10) != 0) {
+        sizeTest /= 10;
+        size++;
+    }
+    if (value < 0) {
+        size += 1;
+        str_buffer[0] = '-';
+        value *= -1;
+    }
+
+    int index = 0;
+    while (value > 0) {
+        str_buffer[size - index] = (value % 10) + '0';
+        index++;
+        value /= 10;
+    }
+    str_buffer[size + 1] = '\0';
+    return str_buffer;
+}
+
 /* This give me compiler erros
 void drawWindow(Framebuffer* framebuffer, Window* win)
 {
@@ -147,7 +192,7 @@ void drawChar(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colou
     }
 }
 
-void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, char* str, unsigned int xOff, unsigned int yOff)  {
+void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, const char* str, unsigned int xOff, unsigned int yOff)  {
     const unsigned int char_width = 8;
     const unsigned int char_height = 16;
     int x = 0, y = 0;
