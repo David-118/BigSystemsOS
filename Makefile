@@ -1,8 +1,7 @@
-setup:
+build-x86_64:
 	@cd src/gnu-efi/ && make
 	@cd src/kernel/ && make setup
 
-build-x86_64:
 	@cd src/gnu-efi/ && make bootloader
 	@cd src/kernel/ && make kernel && make buildimg
 
