@@ -1,16 +1,62 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
+#include "gop.h"
+#include "main.h"
 
-typedef unsigned long long size_t;
 
-typedef struct {
-	void* BaseAddress;
-	size_t BufferSize;
-	unsigned int Width;
-	unsigned int Height;
-	unsigned int PixelsPerScanLine;
-} Framebuffer;
+PSF1_FONT* LoadPSF1Font(EFI_FILE* Dir, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) 
+{
+	EFI_FILE* font = LoadFile(Dir, Path, ImageHandle, SystemTable);
+	if(font==NULL) {
+		fail(L"Font not found");
+		return NULL;
+	}
+
+	PSF1_HEADER* fontHeader;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, sizeof(PSF1_HEADER), (void**)&fontHeader);
+	UINTN size = sizeof(PSF1_HEADER);
+	font->Read(font, &size, fontHeader);
+
+	if (fontHeader->magic[0] != PSF1_MAGIC0 || fontHeader->magic[1] != PSF1_MAGIC1) {
+		return NULL;
+	}
+
+	UINTN glyphBufferSize = fontHeader->charsize * 256;
+	if (fontHeader->mode == 1) { //512 char mode
+		glyphBufferSize = fontHeader->charsize*512;
+	}
+
+	void* glyphBuffer;
+	{
+		font->SetPosition(font, sizeof(PSF1_HEADER));
+		SystemTable->BootServices->AllocatePool(EfiLoaderData, glyphBufferSize, (void**)&glyphBuffer);
+		font->Read(font, &glyphBufferSize, glyphBuffer);
+	}
+
+	PSF1_FONT* loadedFont;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, sizeof(PSF1_FONT), (void**)&loadedFont);
+	loadedFont->glyphBuffer = glyphBuffer;
+	return loadedFont;
+}
+
+
+void fail(short unsigned int* message) 
+{
+	//uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 1, SystemTable->ConOut, EFI_RED);
+	Print(L"[FAIL] ");
+	//uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 1, SystemTable->ConOut, EFI_WHITE;
+	Print(message);
+}
+
+void sucess(short unsigned int* message) 
+{
+	//uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 1, SystemTable->ConOut, EFI_GREEN);
+	Print(L"[ OK ] ");
+	//uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 1, SystemTable->ConOut, EFI_WHITE;
+	Print(message);
+}
+
 
 Framebuffer framebuffer;
 
@@ -21,10 +67,10 @@ Framebuffer* initGOP() {
 
 	status = uefi_call_wrapper(BS->LocateProtocol, 3, &gopGuid, NULL, (void**)&gop);
 	if(EFI_ERROR(status)) {
-		Print(L"[FAIL] Unable to locate GOP protocol\n\r");
+		fail(L"Unable to locate GOP protocol\n\r");
 		return NULL;
 	} else {
-		Print(L"[ OK ] Located GOP\n\r");
+		sucess(L"Located GOP\n\r");
 	}
 
 
@@ -99,16 +145,16 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		header.e_ident[EI_CLASS] != ELFCLASS64 ||
 		header.e_ident[EI_DATA] != ELFDATA2LSB ||
 		header.e_ident[EI_DATA] != ELFDATA2LSB ||
-		header.e_type  != ET_DYN ||
+		header.e_type  != ET_EXEC ||
 		header.e_machine != EM_X86_64 ||
 		header.e_version != EV_CURRENT
 	)
 	{
-		Print(L"[FAIL] Kernel format is bad\r\n");
+		fail(L"Kernel format is bad\r\n");
 	}
 	else
 	{
-		Print(L"[ OK ] Kernel Header successfully verified\r\n");
+		sucess(L"Kernel Header successfully verified\r\n");
 	}
 	
 
@@ -142,27 +188,22 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		}
 	}
 
-	Print(L"[ OK ] Kernel Loaded\n\r");
+	sucess(L"Kernel Loaded\n\r");
 
 	Framebuffer* newBuffer = initGOP();
-	
-	Print(L"Base: 0x%x\n\rSize: 0x%x \n\rWidth: %d\n\rHeight: %d\n\rPixelsPerScanLine: %d\n\r\n\r", 
-	newBuffer->BaseAddress, 
-	newBuffer->BufferSize, 
-	newBuffer->Width, 
-	newBuffer->Height, 
-	newBuffer->PixelsPerScanLine);
 
-	unsigned int y = 50;
-	unsigned int BBP = 4;
+	PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-ext-light16.psf", ImageHandle, SystemTable);
 
-	for (unsigned int x = 0; x < newBuffer->Width / 2 * BBP; x++) {
-		*(unsigned int*)(x + (y * newBuffer->PixelsPerScanLine * BBP) + newBuffer->BaseAddress) = 0xffffffff;
+	if (newFont == NULL) {
+		fail(L"Valid PSF1 font found\n\r");
+	} else {
+		sucess(L"Found Font\n\r");
 	}
+	
 
-	//int (*KernelStart)() = ((__attribute__((sysv_abi)) int (*)() ) header.e_entry);
+	void(*KernelStart)() = ((__attribute__((sysv_abi)) void (*)() ) header.e_entry);
 
-	//Print(L"%d\r\n", KernelStart());
+	KernelStart(newBuffer, &newFont);
 
 	return EFI_SUCCESS; // Exit the UEFI application
 }
