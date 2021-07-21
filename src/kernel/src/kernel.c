@@ -1,5 +1,7 @@
-#include "gop.h"
+#include "boot_info.h"
 #include "kernel.h"
+
+
 
 /**
  * 
@@ -15,18 +17,18 @@
 /**
  * 
  */
-void _start(Framebuffer* framebuffer, PSF1_FONT* psf1_font) 
+void _start(BootInfo* bootInfo) 
 {
-    //clearScreen(framebuffer, 0xffffffff);
-    // setPixel(framebuffer, 10, 50, 0xffff0000);
-    // fillRect(framebuffer, 10, 10, 50, 50, 0xffffff00);
-    // fillRect(framebuffer, 100, 100, 80, 50, 0xff000000);
-    drawString(framebuffer, psf1_font, 0xffffffff, int_to_string(-123), 10, 10);
-    //setPixel(framebuffer, 10, 10, 0xfffffff);
-    //fillRect(framebuffer, 10, 10, 20, 20, 0xffff0000);
+    clearScreen(bootInfo->framebuffer, 0xffffffff);
+    setPixel(bootInfo->framebuffer, 10, 50, 0xffff0000);
+    fillRect(bootInfo->framebuffer, 10, 10, 50, 50, 0xffffff00);
+    fillRect(bootInfo->framebuffer, 100, 100, 80, 50, 0xff000000);
+    drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffff0000, int_to_string(-123), 10, 10);
+    setPixel(bootInfo->framebuffer, 10, 10, 0xfffffff);
+    fillRect(bootInfo->framebuffer, 10, 10, 20, 20, 0xffff0000);
 
     unsigned const BORDERWIDTH = 10;
-    //fillOutlinedRect(framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
+    fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
 
 }
 
