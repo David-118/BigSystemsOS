@@ -35,7 +35,7 @@ void _start(BootInfo* bootInfo)
 
 char str_buffer[128];
 const char* uint_to_string(unsigned int value) {
-    unsigned int size;
+    unsigned int size = 0;
     unsigned int sizeTest = value;
 
     while ((sizeTest / 10) > 0) {
@@ -53,7 +53,7 @@ const char* uint_to_string(unsigned int value) {
 }
 
 const char* int_to_string(int value) {
-    int size;
+    int size = 0;
     int sizeTest = value;
 
     while ((sizeTest / 10) != 0) {
