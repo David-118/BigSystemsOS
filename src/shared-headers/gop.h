@@ -18,6 +18,6 @@ typedef struct {
 } PSF1_HEADER;
 
 typedef struct {
-	PSF1_HEADER* PSF1_Header;
+	PSF1_HEADER* psf1_Header;
 	void* glyphBuffer;
 } PSF1_FONT;
