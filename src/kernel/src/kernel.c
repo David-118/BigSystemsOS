@@ -1,5 +1,7 @@
 #include "boot_info.h"
+#include "efiMemory.h"
 #include "kernel.h"
+#include "stdint.h"
 
 
 
@@ -8,7 +10,7 @@
  * JACOB HOW TO COMPILE YOU PLONKER
  * 
  * Paste this in unbuntu
- * cd src/gnu-efi;  make bootloader; cd ../kernel; make kernel; make buildimg;
+ * make build_x86-64
  * 
  * Run "run2.bat"
  * 
@@ -17,18 +19,18 @@
 /**
  * 
  */
+
+
 void _start(BootInfo* bootInfo) 
 {
-    clearScreen(bootInfo->framebuffer, 0xffffffff);
-    setPixel(bootInfo->framebuffer, 10, 50, 0xffff0000);
-    fillRect(bootInfo->framebuffer, 10, 10, 50, 50, 0xffffff00);
-    fillRect(bootInfo->framebuffer, 100, 100, 80, 50, 0xff000000);
-    drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffff0000, int_to_string(-123), 10, 10);
-    setPixel(bootInfo->framebuffer, 10, 10, 0xfffffff);
-    fillRect(bootInfo->framebuffer, 10, 10, 20, 20, 0xffff0000);
-
-    unsigned const BORDERWIDTH = 10;
-    fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
+    uint64_t mMapEntries = bootInfo->mMapSize / bootInfo->mMapDescriptorSize;
+    int line = 10;
+    for (uint64_t i = 0; i < mMapEntries; i++) {
+        EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)bootInfo->mMap + (i * bootInfo->mMapDescriptorSize));
+        drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffffffff, EFI_MEMORY_TYPE_STRINGS[desc->type], 10, line);
+        drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffff00ff, uint_to_string(desc->numPages * 4096 / 1024), 10 + 8 * 25, line);
+        line+=16;
+    }    
 
 }
 
