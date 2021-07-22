@@ -35,7 +35,7 @@ void paintPixel(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsign
         unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
         unsigned int orginalColour = *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine));
         
-        *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = getColourGradient(orginalColour, colour, getAlpha(colour), 255);
+        *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = getColourGradient(orginalColour, colour, getAlpha(colour), 255); //Include transparency
     }
 }
 
@@ -70,6 +70,12 @@ void fillOutlinedRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, 
 {
     fillRect(framebuffer, x+lineWidth, y+lineWidth, width-(2*lineWidth), height-(2*lineWidth), fillColour); //Draw the filled in rectangle
     outlineRect(framebuffer, x, y, width, height, lineWidth, outlineColour); //Draw the outlined rectangle
+}
+
+void fillOutlinedGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int fillColourTop, unsigned int fillColourBottom, unsigned int outlineColourTop, unsigned int outlineColourBottom)
+{
+    fillGradientRect(framebuffer, x+lineWidth, y+lineWidth, width-(2*lineWidth), height-(2*lineWidth), fillColourTop, fillColourBottom); //Draw the filled in rectangle
+    outlineGradientRect(framebuffer, x, y, width, height, lineWidth, outlineColourTop, outlineColourBottom); //Draw the outlined rectangle
 }
 /**
  * 
@@ -327,7 +333,7 @@ void drawChar(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colou
         {
             if ((*fontPtr & (0b10000000 >> (x - xOff))) > 0)
             {
-                *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = colour;
+                setPixel(framebuffer, x, y, colour);
             }
 
         }
@@ -393,7 +399,7 @@ unsigned int getColourGradient(unsigned int colourTop, unsigned int colourBottom
     unsigned int red = ((REDTOP*howCloseToStart)+(REDBOTTOM*howCloseToEnd))/size; //Computer weighted average red 
     unsigned int green = ((GREENTOP*howCloseToStart)+(GREENBOTTOM*howCloseToEnd))/size; //Computer weighted average green 
     unsigned int blue = ((BLUETOP*howCloseToStart)+(BLUEBOTTOM*howCloseToEnd))/size; //Computer weighted average blue 
-    return blue+(green<<8)+(red<<16)+(alpha<<24); //re add all components together (shift components to be in the right place)
+    return makeColour(red, green, blue, alpha); //re add all components together
 }
 
 unsigned int getAlpha(unsigned int colour)
@@ -418,4 +424,9 @@ unsigned int getBlue(unsigned int colour)
 {
     return colour & 0x000000ff; //return blue byte
     //If you don't know how bitwsie operators and masking works just google it -Jacob 2021 (quoting Harry's dad)
+}
+
+unsigned int makeColour(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
+{
+    return blue+(green<<8)+(red<<16)+(alpha<<24); //Add all components together (shift components to be in the right place)
 }

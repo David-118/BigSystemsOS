@@ -21,9 +21,10 @@ void fillGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, 
 void fillCircle(Framebuffer* framebuffer, int centerX, int centerY, int startX, int startY, int endX, int endY, int radius, unsigned int colour);
 
 void fillOutlinedRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int fillColour, unsigned int outlineColour);
+void fillOutlinedGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int fillColourTop, unsigned int fillColourBottom, unsigned int outlineColourTop, unsigned int outlineColourBottom);
+
 void fillOutlinedCurvedRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int fillColour, unsigned int outlineColour, bool topLeft, bool topRight, bool bottomLeft, bool bottomRight);
 void fillOutlinedGradientCurvedRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int fillColourTop, unsigned int fillColourBottom, unsigned int outlineColourTop, unsigned int outlineColourBottom, bool topLeft, bool topRight, bool bottomLeft, bool bottomRight);
-
 
 void outlineRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int colour);
 void outlineGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int lineWidth, unsigned int colourTop, unsigned int colourBottom);
@@ -34,6 +35,8 @@ void outlineGradientCurvedRect(Framebuffer* framebuffer, unsigned int x, unsigne
 void drawline(Framebuffer* framebuffer, int x0, int y0, int x1, int y1, unsigned int colour);
 
 unsigned int changeBrightness(unsigned int colour, int brightness);
+
+unsigned int makeColour(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
 
 unsigned int getColourGradient(unsigned int colourTop, unsigned int colourBottom, unsigned int pos, unsigned int size);
 
