@@ -1,7 +1,8 @@
 
 #include "button.h"
 
-const unsigned int BUTTONBORDERWIDTH = 2; //The border width of the window
+
+const unsigned int BUTTONBORDERWIDTH = 4; //The border width of the window
 
 
 unsigned int getButtonActualX(Window* window, Button* button)
@@ -16,14 +17,19 @@ unsigned int getButtonActualY(Window* window, Button* button)
 
 void drawButton(Framebuffer* framebuffer, Window* window, Button* button)
 {
-    unsigned int x = getButtonActualX(window, button); //The drawn x position of the window
-    unsigned int y = getButtonActualY(window, button); //The drawn y position of the window
-    unsigned int width = button->width; //The drawn width
-    unsigned int height = button->height; //The drawn height
+    const unsigned int X = getButtonActualX(window, button); //The drawn x position of the window
+    const unsigned int Y = getButtonActualY(window, button); //The drawn y position of the window
+    const int WIDTH = button->width; //The drawn width
+    const int HEIGHT = button->height; //The drawn height
     
-    fillOutlinedRect(framebuffer, x, y, width, height, BUTTONBORDERWIDTH, button->fillColour, button->outlineColour);
+    fillOutlinedCurvedRect(framebuffer, X, Y, WIDTH, HEIGHT, BUTTONBORDERWIDTH, button->fillColour, button->outlineColour, true, true, true, true); //Draw button box
 
-    drawString(framebuffer, button->font, button->textColour, button->TEXT, x, y); //Draw the title text
+    int TEXTLENGTH = stringLength(button->TEXT);
+
+    const int TEXTOFFSETY = (HEIGHT - (int)getFontCharHeight()) / 2; //Calculate the text offset to center it within the button
+    const int TEXTOFFSETX = (WIDTH - ((int)getFontCharWidth()*TEXTLENGTH)) / 2; //Calculate the text offset to center it within the button
+
+    drawString(framebuffer, button->font, button->textColour, button->TEXT, X+TEXTOFFSETX, Y+TEXTOFFSETY); //Draw the title text
 }
 /**
  * Bassically a constructor cause simpleton Jacob can't live without his OOP 

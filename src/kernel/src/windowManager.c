@@ -2,11 +2,11 @@
 #include "windowManager.h"
 
 
-const unsigned int WINDOWBORDERWIDTH = 5; //The border width of the window
+const unsigned int WINDOWBORDERWIDTH = 4; //The border width of the window
 
 const unsigned int WINDOWTITLEBARHEIGHT = 30; //The height of the window's forehead (oh boy his hairline is bad)
 
-const unsigned int WINDOWBASEFILLCOLOUR = 0xffd0d0d0; //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
+const unsigned int WINDOWBASEFILLCOLOUR = 0xffe0e0e0; //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
 
 
 void drawWindow(Framebuffer* framebuffer, Window* window)
@@ -22,11 +22,13 @@ void drawWindow(Framebuffer* framebuffer, Window* window)
     { //If the window isn't minimised
         if (window->hasBorders == true)
         { //If the window has outline borders
-            fillRect(framebuffer, x, y, width, WINDOWTITLEBARHEIGHT, window->borderColour); //Draw the title bar
+            fillOutlinedCurvedRect(framebuffer, x, y, width, WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, window->borderColour, window->borderColour, true, true, false, false); //Draw the title bar
+
+            //fillRect(framebuffer, x, y, width, WINDOWTITLEBARHEIGHT, window->borderColour); //Draw the title bar
             const unsigned int XOFFSET = 5;
             const unsigned int YOFFSET = 5;
             drawString(framebuffer, window->font, window->textColour, window->NAME, XOFFSET+window->x, YOFFSET+window->y); //Draw the title text
-            fillOutlinedRect(framebuffer, x, y+WINDOWTITLEBARHEIGHT, width, height-WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, WINDOWBASEFILLCOLOUR, window->borderColour); //Draw a window with borders 
+            fillOutlinedGradientCurvedRect(framebuffer, x, y+WINDOWTITLEBARHEIGHT, width, height-WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, WINDOWBASEFILLCOLOUR, WINDOWBASEFILLCOLOUR, window->borderColour, changeBrightness(window->borderColour, -30), false, false, true, true); //Draw a window with borders 
         }
         else
         { //If the window does not have outline borders
@@ -40,6 +42,9 @@ void drawWindow(Framebuffer* framebuffer, Window* window)
         }
     }
 }
+
+const unsigned int BUTTONXSTEP = 24; //Stores the gap between the 3 buttons on the title bar
+
 /**
  * Bassically a constructor cause simpleton Jacob can't live without his OOP 
  * (He might die of a quintuple stroke and double heart-attack if you remove this so please don't)
@@ -60,8 +65,7 @@ Window makeWindow(Framebuffer* framebuffer, char* NAME, unsigned int x, unsigned
     result.font = font;
     result.borderColour = borderColour;
 
-    const unsigned int BUTTONSIZE = 24;
-    const unsigned int BUTTONXSTEP = 30;
+    const unsigned int BUTTONSIZE = 20;
     const unsigned int BUTTONOFFSET = (WINDOWTITLEBARHEIGHT - BUTTONSIZE) / 2;
     const unsigned int BUTTONY = BUTTONOFFSET;
     const unsigned int BUTTONSTARTX = getWindowWidth(framebuffer, &result) - WINDOWBORDERWIDTH - BUTTONSIZE;
@@ -70,7 +74,18 @@ Window makeWindow(Framebuffer* framebuffer, char* NAME, unsigned int x, unsigned
 
     for (i = 0; i < 3; i++)
     {
-        result.buttons[i] = makeButton("X", BUTTONSTARTX-(i*BUTTONXSTEP), BUTTONY, BUTTONSIZE, BUTTONSIZE, 0xffe00000, 0xff900000, 0xff000000, font);
+        if (i == 0)
+        {
+            result.buttons[i] = makeButton("X", BUTTONSTARTX-(i*BUTTONXSTEP), BUTTONY, BUTTONSIZE, BUTTONSIZE, 0xffC84B4B, 0xffB03535, 0xff000000, font);
+        }
+        else if (i == 1)
+        {
+            result.buttons[i] = makeButton("O", BUTTONSTARTX-(i*BUTTONXSTEP), BUTTONY, BUTTONSIZE, BUTTONSIZE, 0xff99D9EA, 0xff79CEE3, 0xff000000, font);
+        }
+        else if (i == 2)
+        {
+            result.buttons[i] = makeButton("-", BUTTONSTARTX-(i*BUTTONXSTEP), BUTTONY, BUTTONSIZE, BUTTONSIZE, 0xffF0EA75, 0xffDAD570, 0xff000000, font);
+        }
     }
 
     return result;
@@ -78,8 +93,7 @@ Window makeWindow(Framebuffer* framebuffer, char* NAME, unsigned int x, unsigned
 
 void updateTitleBarButtonPosition(Framebuffer* framebuffer, Window* window)
 {
-    const unsigned int BUTTONSIZE = 24;
-    const unsigned int BUTTONXSTEP = 30;
+    const unsigned int BUTTONSIZE = window->buttons[0].height;
     const unsigned int BUTTONOFFSET = (WINDOWTITLEBARHEIGHT - BUTTONSIZE) / 2;
     const unsigned int BUTTONY = BUTTONOFFSET;
     const unsigned int BUTTONSTARTX = getWindowWidth(framebuffer, window) - WINDOWBORDERWIDTH - BUTTONSIZE;
