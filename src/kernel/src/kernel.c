@@ -27,23 +27,21 @@
 Framebuffer* framebuffer;
 PSF1_FONT* psf1_font;
 
+extern uint64_t _KernelStart;
+extern uint64_t _KernelEnd;
 void _start(BootInfo* bootInfo) 
 {
     framebuffer = bootInfo -> framebuffer;
     psf1_font = bootInfo -> psf1_font;
 
-    
-    
     pageFrameAllocator_readEfiMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescriptorSize);
-    uint64_t row = 0;
-    for (int i = 0; i < 20; i++) {
-        void* address = pageFrameAllocator_requestPage();
-        if (address != NULL) {
-            drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffffffff, int_to_string((int64_t)address), 16, row);
-        } else {
-            drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffffffff, "null", 16, row);        }
-        row+= 16;
-    }
+
+    uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
+    uint64_t kernelPages  = kernelSize / 4096 + 1;
+    
+    pageFrameAllocator_lockPages((void*)&_KernelStart, kernelPages);
+
+    
     
 }
 
@@ -229,7 +227,7 @@ void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int col
        
         if (str[i]!='\n') 
         {
-             drawChar(framebuffer, psf1_font, colour, str[i], xOff + x, yOff + y);
+            drawChar(framebuffer, psf1_font, colour, str[i], xOff + x, yOff + y);
             x += char_width;
         } 
         else

@@ -90,7 +90,7 @@ void pageFrameAllocator_readEfiMemoryMap(EFI_MEMORY_DESCRIPTOR *mMap, size_t mMa
     initBitmap(largestFreeMemSeg, pageBitmapSize);
     
 
-    pageFrameAllocator_lockPages(&pageFrameAllocator_pageBitmap, pageFrameAllocator_pageBitmapSize / 4096);
+    pageFrameAllocator_lockPages(&pageFrameAllocator_pageBitmap, pageFrameAllocator_pageBitmapSize / 4096 + 1);
     
     for (uint64_t i = 0; i < mMapEntries; i++) {
         EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)mMap + (i * mMapDescriptorSize));
