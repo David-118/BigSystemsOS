@@ -11,6 +11,7 @@ typedef struct {
 }BootInfo;
 
 
+
 void _start(BootInfo* bootInfo);
 const char* uint_to_string(unsigned int value);
 const char* int_to_string(int value);

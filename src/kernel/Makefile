@@ -40,7 +40,7 @@ setup:
 
 buildimg:
 	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
-	mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 -F ::
+	mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 ::
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT

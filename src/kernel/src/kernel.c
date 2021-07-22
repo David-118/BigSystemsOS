@@ -24,26 +24,29 @@ void _start(BootInfo* bootInfo)
     fillRect(bootInfo->framebuffer, 10, 10, 50, 50, 0xffffff00);
     fillRect(bootInfo->framebuffer, 100, 100, 80, 50, 0xff000000);
     drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffff0000, int_to_string(-123), 10, 10);
-    setPixel(bootInfo->framebuffer, 10, 10, 0xfffffff);
-    fillRect(bootInfo->framebuffer, 10, 10, 20, 20, 0xffff0000);
+    //setPixel(bootInfo->framebuffer, 10, 10, 0xfffffff);
+    //fillRect(bootInfo->framebuffer, 10, 10, 20, 20, 0xffff0000);
 
-    unsigned const BORDERWIDTH = 10;
-    fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
+    //unsigned const BORDERWIDTH = 10;
+    //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
 
 }
 
 
 char str_buffer[128];
-const char* uint_to_string(unsigned int value) {
+const char* uint_to_string(unsigned int value)
+{
     unsigned int size = 0;
     unsigned int sizeTest = value;
 
-    while ((sizeTest / 10) > 0) {
+    while ((sizeTest / 10) > 0)
+    {
         sizeTest /= 10;
         size++;
     }        
     int index = 0;
-    while (value > 0) {
+    while (value > 0)
+    {
         str_buffer[size - index] = (value % 10) + '0';
         index++;
         value /= 10;
@@ -52,22 +55,26 @@ const char* uint_to_string(unsigned int value) {
     return str_buffer;
 }
 
-const char* int_to_string(int value) {
+const char* int_to_string(int value)
+{
     int size = 0;
     int sizeTest = value;
 
-    while ((sizeTest / 10) != 0) {
+    while ((sizeTest / 10) != 0)
+    {
         sizeTest /= 10;
         size++;
     }
-    if (value < 0) {
+    if (value < 0)
+    {
         size += 1;
         str_buffer[0] = '-';
         value *= -1;
     }
 
     int index = 0;
-    while (value > 0) {
+    while (value > 0)
+    {
         str_buffer[size - index] = (value % 10) + '0';
         index++;
         value /= 10;
@@ -76,27 +83,22 @@ const char* int_to_string(int value) {
     return str_buffer;
 }
 
-/* This give me compiler erros
-void drawWindow(Framebuffer* framebuffer, Window* win)
-{
-    const BORDERWIDTH = 10;
-    fillOutlinedRect(framebuffer, win->x, win->y, win->Width, win->Height, BORDERWIDTH, 0xff909090, 0xff0000ff);
-}
-*/
+
 void clearScreen(Framebuffer* framebuffer, unsigned int colour)
 {
-    const unsigned int WIDTH = framebuffer->PixelsPerScanLine;
-    const unsigned int HEIGHT = framebuffer->Height;
-    fillRect(framebuffer, 0, 0, WIDTH, HEIGHT, colour);
+    const unsigned int SCREENWIDTH = framebuffer->PixelsPerScanLine; //The width of the screen in pixels
+    const unsigned int SCREENHEIGHT = framebuffer->Height; //The height of the screen in pixels
+    fillRect(framebuffer, 0, 0, SCREENWIDTH, SCREENHEIGHT, colour); //Fill the rectangular screen with the designated background colour
 }
 /**
  * Sets a specific pixel
  */
 void setPixel(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int colour)
 {
-    const unsigned int WIDTH = 1920; //Fix this to actually take into account width and height
-    const unsigned int HEIGHT = 1080; //Fix this to actually take into account width and height
-    if ((x >= 0) && (y >= 0) && (y < HEIGHT) && (x < WIDTH))
+    const unsigned int SCREENWIDTH = framebuffer->PixelsPerScanLine; //The width of the screen in pixels
+    const unsigned int SCREENHEIGHT = framebuffer->Height; //The height of the screen in pixels
+    
+    if ((y < SCREENHEIGHT) && (x < SCREENWIDTH)) //Do not need to check x>=0, y>=0 as unsigned integers are always positive
     { //Check if pixel can draw to a valid point
         unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
         *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = colour;
@@ -116,19 +118,49 @@ void fillOutlinedRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, 
  */
 void fillRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int colour)
 {
-    const unsigned int ENDX = x + width; //Stores one pixel further than the end x position of the rectangle (use < not <= to draw the correct width) 
-    const unsigned int ENDY = y + height; //Stores one pixel further than the end y position of the rectangle (use < not <= to draw the correct height) 
-    int ix, iy; //Declare for looping
+    
+    unsigned int ix, iy; //Declare for looping
 
-    //Loop through all points
-    for (ix = x; ix < ENDX; ix++)
-    {
-        for (iy = y; iy < ENDY; iy++)
+    unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress; //Position in memory of (0, 0)
+    unsigned int pixelWidth = framebuffer->PixelsPerScanLine; //Number of pixels per scan line (think of as 2d array width)
+
+    const unsigned int SCREENWIDTH = framebuffer->PixelsPerScanLine; //The width of the screen in pixels
+    const unsigned int SCREENHEIGHT = framebuffer->Height; //The height of the screen in pixels
+
+    if ((y < SCREENHEIGHT) && (x < SCREENWIDTH)) //Do not need to check x>=0, y>=0 as unsigned integers are always positive
+    { //Check if the rectangle is on screen
+
+        unsigned int LoopEndX = x + width; //Stores one position further in memory further than the end x position of the rectangle (use < not <= to draw the correct width) 
+        unsigned int LoopEndY = (y + height)*pixelWidth; //Stores pixelWidth position in memory further than the end y position of the rectangle (use < not <= to draw the correct height) 
+        
+        if (LoopEndX > SCREENWIDTH)
+        { //If the rectange was going to go off screen
+            LoopEndX = SCREENWIDTH;
+        }
+        if (LoopEndY > SCREENHEIGHT*pixelWidth)
+        { //If the rectange was going to go off screen in the y direction
+            LoopEndY = SCREENHEIGHT*pixelWidth;
+        }
+        //Loop through all points
+        for (ix = x; ix < LoopEndX; ix++)
         {
-            setPixel(framebuffer, ix, iy, colour);
+            for (iy = y*pixelWidth; iy < LoopEndY; iy += pixelWidth)
+            {
+                *(unsigned int*)(pixPtr + ix + iy) = colour; //Set colour of pixel
+            }
         }
     }
 }
+/**
+ * Draws an outline of a rectangle where on of the corner points is (x, y) and has height and width specified, the outline width can also be specified
+ */
+/*
+Can name functions the smae thign in C big sad
+void outlineRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int colour)
+{
+    outlineRect(framebuffer, x, y, width, height, 1, colour);
+}
+*/
 /**
  * Draws an outline of a rectangle where on of the corner points is (x, y) and has height and width specified, the outline width can also be specified
  */
@@ -139,11 +171,11 @@ void outlineRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsig
     int ix, iy, i; //Declare for looping
     int myX, myY;
     //Draw horizontal lines
-    fillRect(framebuffer, x, y, width, lineWidth, colour);
-    fillRect(framebuffer, x, ENDY-1-lineWidth, width, lineWidth, colour);
+    fillRect(framebuffer, x, y, width-1, lineWidth, colour);
+    fillRect(framebuffer, x, ENDY-1-lineWidth, width-1, lineWidth, colour);
     //Draw vertical lines
-    fillRect(framebuffer, x, y, lineWidth, height, colour);
-    fillRect(framebuffer, ENDX-1-lineWidth, y, lineWidth, height, colour);
+    fillRect(framebuffer, x, y, lineWidth, height-1, colour);
+    fillRect(framebuffer, ENDX-1-lineWidth, y, lineWidth, height-1, colour);
 }
  /**
   * Draws a line between the points (x0, y0) and (x1, y1)
@@ -183,22 +215,27 @@ void drawChar(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colou
 {
     unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
     char* fontPtr = psf1_font->glyphBuffer + (chr * psf1_font->psf1_Header->charsize);
-    for (unsigned int y = yOff; y < yOff + 16; y++){
-        for (unsigned int x = xOff; x < xOff+8; x++){
-            if ((*fontPtr & (0b10000000 >> (x - xOff))) > 0){
-                    *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = colour;
-                }
+    for (unsigned int y = yOff; y < yOff + 16; y++)
+    {
+        for (unsigned int x = xOff; x < xOff+8; x++)
+        {
+            if ((*fontPtr & (0b10000000 >> (x - xOff))) > 0)
+            {
+                *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = colour;
+            }
 
         }
         fontPtr++;
     }
 }
 
-void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, const char* str, unsigned int xOff, unsigned int yOff)  {
+void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int colour, const char* str, unsigned int xOff, unsigned int yOff)
+{
     const unsigned int char_width = 8;
     const unsigned int char_height = 16;
     int x = 0, y = 0;
-    for (int i = 0; str[i]!='\0'; i++) {
+    for (int i = 0; str[i]!='\0'; i++)
+    {
        
         if (str[i]!='\n') 
         {
