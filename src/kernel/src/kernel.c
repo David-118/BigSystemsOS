@@ -1,7 +1,9 @@
 #include "boot_info.h"
 #include "efiMemory.h"
 #include "kernel.h"
+#include "memory.h"
 #include "stdint.h"
+#include "bitmap.h"
 
 
 
@@ -21,30 +23,23 @@
  */
 
 
+
 void _start(BootInfo* bootInfo) 
 {
-    uint64_t mMapEntries = bootInfo->mMapSize / bootInfo->mMapDescriptorSize;
-    int line = 10;
-    for (uint64_t i = 0; i < mMapEntries; i++) {
-        EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)bootInfo->mMap + (i * bootInfo->mMapDescriptorSize));
-        drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffffffff, EFI_MEMORY_TYPE_STRINGS[desc->type], 10, line);
-        drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffff00ff, uint_to_string(desc->numPages * 4096 / 1024), 10 + 8 * 25, line);
-        line+=16;
-    }    
 
 }
 
-
 char str_buffer[128];
-const char* uint_to_string(unsigned int value) {
-    unsigned int size = 0;
-    unsigned int sizeTest = value;
+const char* uint_to_string(uint64_t value) 
+{
+    uint64_t size = 0;
+    uint64_t sizeTest = value;
 
     while ((sizeTest / 10) > 0) {
         sizeTest /= 10;
         size++;
-    }        
-    int index = 0;
+    }
+    int index =0;
     while (value > 0) {
         str_buffer[size - index] = (value % 10) + '0';
         index++;
@@ -54,9 +49,29 @@ const char* uint_to_string(unsigned int value) {
     return str_buffer;
 }
 
-const char* int_to_string(int value) {
-    int size = 0;
-    int sizeTest = value;
+const char* ubyte_to_bin(uint8_t value) 
+{
+    uint8_t size = 0;
+    uint8_t sizeTest = value;
+
+    while ((sizeTest >> 1) > 0) {
+        sizeTest >>= 1;
+        size++;
+    }        
+    int index = 0;
+    while (value > 0) {
+        str_buffer[size - index] = (value % 2) + '0';
+        index++;
+        value >>= 1;
+    }
+    str_buffer[size + 1] = '\0';
+    return str_buffer;
+}
+
+const char* int_to_string(int64_t value) 
+{
+    int64_t size = 0;
+    int64_t sizeTest = value;
 
     while ((sizeTest / 10) != 0) {
         sizeTest /= 10;
