@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "stdint.h"
 #include "bitmap.h"
+#include "pageFrameAllocator.h"
 
 
 
@@ -23,14 +24,31 @@
  */
 
 
+Framebuffer* framebuffer;
+PSF1_FONT* psf1_font;
 
 void _start(BootInfo* bootInfo) 
 {
+    framebuffer = bootInfo -> framebuffer;
+    psf1_font = bootInfo -> psf1_font;
 
+    
+    
+    pageFrameAllocator_readEfiMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescriptorSize);
+    uint64_t row = 0;
+    for (int i = 0; i < 20; i++) {
+        void* address = pageFrameAllocator_requestPage();
+        if (address != NULL) {
+            drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffffffff, int_to_string((int64_t)address), 16, row);
+        } else {
+            drawString(bootInfo->framebuffer, bootInfo->psf1_font, 0xffffffff, "null", 16, row);        }
+        row+= 16;
+    }
+    
 }
 
 char str_buffer[128];
-const char* uint_to_string(uint64_t value) 
+const char* uint_to_string(uint64_t value)
 {
     uint64_t size = 0;
     uint64_t sizeTest = value;
@@ -51,22 +69,14 @@ const char* uint_to_string(uint64_t value)
 
 const char* ubyte_to_bin(uint8_t value) 
 {
-    uint8_t size = 0;
-    uint8_t sizeTest = value;
-
-    while ((sizeTest >> 1) > 0) {
-        sizeTest >>= 1;
-        size++;
-    }        
-    int index = 0;
-    while (value > 0) {
-        str_buffer[size - index] = (value % 2) + '0';
-        index++;
-        value >>= 1;
+    str_buffer[8] = '\0';
+    for (int i = 7; i >= 0; i--) {
+        str_buffer[i] =  (value & 1) + '0';
+        value >>=1;
     }
-    str_buffer[size + 1] = '\0';
     return str_buffer;
 }
+
 
 const char* int_to_string(int64_t value) 
 {

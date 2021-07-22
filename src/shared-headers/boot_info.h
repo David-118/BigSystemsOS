@@ -1,6 +1,6 @@
 #pragma once 
+#include "stddef.h"
 
-typedef unsigned long long size_t;
 
 typedef struct {
 	void* BaseAddress;

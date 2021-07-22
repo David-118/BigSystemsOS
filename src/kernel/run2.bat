@@ -1,5 +1,6 @@
 set OSNAME=BigSystemsOS
-set BUILDDIR=%0/../bin
+set BUILD
+R=%0/../bin
 set OVMFDIR=%0/../../OVMFbin
 
 set BUILDDIR=%BUILDDIR:"=%

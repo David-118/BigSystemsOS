@@ -10,6 +10,12 @@ void pageFrameAllocator_freePage(void* address);
 void pageFrameAllocator_lockPage(void* address);
 void pageFrameAllocator_freePages(void* address, uint64_t pageCount);
 void pageFrameAllocator_lockPages(void* address, uint64_t pageCount);
+void* pageFrameAllocator_requestPage();
 
-uint8_t* pageFrameAllocator_pageBitmap;
-size_t pageFrameAllocator_pageBitmapSize;
+uint64_t pageFrameAllocator_getFreeRAM();
+uint64_t pageFrameAllocator_getUsedRAM();
+uint64_t pageFrameAllocator_getReservedRAM();
+
+
+uint8_t* pageFrameAllocator_getPageBitmap();
+size_t pageFrameAllocator_getPageBitmapSize();
