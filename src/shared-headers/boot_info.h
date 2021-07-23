@@ -1,5 +1,5 @@
 #pragma once 
-#include "stddef.h"
+#include <stddef.h>
 
 
 typedef struct {
@@ -23,4 +23,3 @@ typedef struct {
 	PSF1_HEADER* psf1_Header;
 	void* glyphBuffer;
 } PSF1_FONT;
-

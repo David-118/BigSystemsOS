@@ -8,7 +8,7 @@ CC = gcc
 
 CFLAGS = -ffreestanding -fshort-wchar -I ../shared-headers
 
-LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
+LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib -fstack-protector -shared
 SRCDIR := src
 OBJDIR := lib
 BUILDDIR = bin
@@ -38,15 +38,24 @@ setup:
 	@mkdir -p $(SRCDIR)
 	@mkdir -p $(OBJDIR)
 
-buildimg:
-	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
-	mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 -F ::
+makeimg:
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img startup.nsh ::
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BUILDDIR)/kernel.elf ::
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BUILDDIR)/zap-light16.psf ::
+
+buildimg:
+	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
+	mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 ::
+	make makeimg
+
+buildimg_32:
+	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
+	mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 -F ::
+	make makeimg
+
 
 run:
 	qemu-system-x86_64 -drive file=$(BUILDDIR)/$(OSNAME).img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
