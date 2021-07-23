@@ -20,3 +20,5 @@ unsigned int getWindowY(Window* window);
 
 void updateTitleBarButtonPosition(Framebuffer* framebuffer, Window* window);
 
+const unsigned int WINDOWBORDERDARKERGRADIENTAMOUNT;
+

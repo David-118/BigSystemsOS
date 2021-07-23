@@ -2,7 +2,8 @@
 
 typedef unsigned long long size_t;
 
-typedef struct {
+typedef struct
+{
 	void* BaseAddress;
 	size_t BufferSize;
 	unsigned int Width;
@@ -13,13 +14,15 @@ typedef struct {
 #define PSF1_MAGIC0 0X36
 #define PSF1_MAGIC1 0X04
 
-typedef struct {
+typedef struct
+{
 	unsigned char magic[2];
 	unsigned char mode;
 	unsigned char charsize;
 } PSF1_HEADER;
 
-typedef struct {
+typedef struct
+{
 	PSF1_HEADER* psf1_Header;
 	void* glyphBuffer;
 } PSF1_FONT;

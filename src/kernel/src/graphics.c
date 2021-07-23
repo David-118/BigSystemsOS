@@ -158,12 +158,14 @@ void fillGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, 
         { //If the rectange was going to go off screen in the y direction
             LoopEndY = SCREENHEIGHT*pixelWidth;
         }
+
+        const unsigned int STARTY = y*pixelWidth;
         //Loop through all points
         for (ix = x; ix < LoopEndX; ix++)
         {
-            for (iy = y*pixelWidth; iy < LoopEndY; iy += pixelWidth)
+            for (iy = STARTY; iy < LoopEndY; iy += pixelWidth)
             {
-                unsigned int colour = getColourGradient(colourTop, colourBottom, iy, LoopEndY);
+                unsigned int colour = getColourGradient(colourTop, colourBottom, iy-STARTY, LoopEndY-STARTY);
                 if (getAlpha(colour) == 255)
                 { //If not transparent
                     *(unsigned int*)(pixPtr + ix + iy) = colour; //Set colour of pixel
@@ -214,7 +216,7 @@ void outlineGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int 
     int myX, myY;
     //Draw horizontal lines
     fillGradientRect(framebuffer, x, y, width, lineWidth, colourTop, getColourGradient(colourTop, colourBottom, lineWidth, height));
-    fillGradientRect(framebuffer, x, ENDY-lineWidth, width, lineWidth, getColourGradient(colourTop, colourBottom, ENDY-lineWidth, height), colourBottom);
+    fillGradientRect(framebuffer, x, ENDY-lineWidth, width, lineWidth, getColourGradient(colourTop, colourBottom, height-lineWidth, height), colourBottom);
     //Draw vertical lines
     fillGradientRect(framebuffer, x, y, lineWidth, height, colourTop, colourBottom);
     fillGradientRect(framebuffer, ENDX-lineWidth, y, lineWidth, height, colourTop, colourBottom);
@@ -272,7 +274,7 @@ void outlineGradientCurvedRect(Framebuffer* framebuffer, unsigned int x, unsigne
     
     //Draw horizontal lines with edges removed
     fillGradientRect(framebuffer, x+topLeftOffSet, y, width-(topLeftOffSet+topRightOffSet), lineWidth, colourTop, getColourGradient(colourTop, colourBottom, lineWidth, height));
-    fillGradientRect(framebuffer, x+bottomLeftOffSet, ENDY-lineWidth, width-(bottomLeftOffSet+bottomRightOffSet), lineWidth, getColourGradient(colourTop, colourBottom, ENDY-lineWidth, height), colourBottom);
+    fillGradientRect(framebuffer, x+bottomLeftOffSet, ENDY-lineWidth, width-(bottomLeftOffSet+bottomRightOffSet), lineWidth, getColourGradient(colourTop, colourBottom, height-lineWidth, height), colourBottom);
     //Draw vertical lines with edges removed
     fillGradientRect(framebuffer, x, y+topLeftOffSet, lineWidth, height-(topLeftOffSet+bottomLeftOffSet), colourTop, colourBottom);
     fillGradientRect(framebuffer, ENDX-lineWidth, y+topRightOffSet, lineWidth, height-(topRightOffSet+bottomRightOffSet), colourTop, colourBottom);

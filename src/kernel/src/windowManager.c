@@ -9,6 +9,8 @@ const unsigned int WINDOWTITLEBARHEIGHT = 30; //The height of the window's foreh
 const unsigned int WINDOWDEFAULTFILLCOLOUR = 0xffeeeeee; //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
 //const unsigned int WINDOWDEFAULTBORDERCOLOUR = makeColor(200, 200, 200, 255); //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
 
+const unsigned int WINDOWBORDERDARKERGRADIENTAMOUNT = 40;
+
 
 void drawWindow(Framebuffer* framebuffer, Window* window)
 {
@@ -29,7 +31,7 @@ void drawWindow(Framebuffer* framebuffer, Window* window)
             const unsigned int XOFFSET = 5;
             const unsigned int YOFFSET = 5;
             drawString(framebuffer, window->font, window->textColour, window->NAME, XOFFSET+window->x, YOFFSET+window->y); //Draw the title text
-            fillOutlinedGradientCurvedRect(framebuffer, x, y+WINDOWTITLEBARHEIGHT, width, height-WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, WINDOWDEFAULTFILLCOLOUR, WINDOWDEFAULTFILLCOLOUR, window->borderColour, changeBrightness(window->borderColour, -30), false, false, true, true); //Draw a window with borders 
+            fillOutlinedGradientCurvedRect(framebuffer, x, y+WINDOWTITLEBARHEIGHT, width, height-WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, WINDOWDEFAULTFILLCOLOUR, WINDOWDEFAULTFILLCOLOUR, window->borderColour, changeBrightness(window->borderColour, -WINDOWBORDERDARKERGRADIENTAMOUNT), false, false, true, true); //Draw a window with borders 
         }
         else
         { //If the window does not have outline borders

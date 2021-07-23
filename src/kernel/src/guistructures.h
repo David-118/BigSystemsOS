@@ -61,6 +61,8 @@ typedef struct
 
     Button buttons[64]; //The buttons for the for the canvas
 
+    Framebuffer* canvasbuffer; //The buffer to draw
+
 }Canvas;
 
 typedef struct
@@ -78,3 +80,9 @@ typedef struct
     Button buttons[64]; //The buttons for the for the taskbar
 
 }TaskBar;
+
+typedef struct
+{
+	//Add stuff to this
+
+}Desktop;
