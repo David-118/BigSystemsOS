@@ -20,7 +20,13 @@
  */
 void _start(BootInfo* bootInfo) 
 {
-    clearScreen(bootInfo->framebuffer, 0xffffe0ff);
+    //writeImage(bootInfo->framebuffer);
+    /*
+    Replace this with the desktop background
+    */
+    clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
+    fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));
+    fillCircle(bootInfo->framebuffer, 0, 0, 0, 0, 80, 80, 80, makeColour(255, 255, 0, 255));
     //Window makeWindow(char* NAME, unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool isFullScreen, bool isMinimised, bool isResizable, bool hasBorders, unsigned int textColour, PSF1_FONT* font, unsigned int borderColour)
 
     Window myWindow = makeWindow(bootInfo->framebuffer, "BEANS", 50, 50, 200, 200, false, false, true, true, 0xff000000, bootInfo->psf1_font, makeColour(200, 200, 220, 215));

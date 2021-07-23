@@ -2,6 +2,8 @@
 
 const unsigned int TASKBARCURVE = 16;
 
+const unsigned int TASKBARBORDERDARKERGRADIENTAMOUNT = 40;
+
 void drawTaskbar(Framebuffer* framebuffer, TaskBar* taskbar)
 {
     unsigned int x = taskbar->x; //The drawn x position of the window
@@ -11,7 +13,7 @@ void drawTaskbar(Framebuffer* framebuffer, TaskBar* taskbar)
 
     int i; //Declare int 'i' for looping
     //outlineGradientCurvedRect(framebuffer, x, y, width, height, TASKBARCURVE, taskbar->colour, changeBrightness(taskbar->colour, -40), true, true, false, false);
-    fillOutlinedGradientCurvedRect(framebuffer, x, y, width, height, TASKBARCURVE, taskbar->colour, changeBrightness(taskbar->colour, -WINDOWBORDERDARKERGRADIENTAMOUNT), taskbar->colour, changeBrightness(taskbar->colour, -WINDOWBORDERDARKERGRADIENTAMOUNT), true, true, false, false); //Draw the title bar
+    fillOutlinedGradientCurvedRect(framebuffer, x, y, width, height, TASKBARCURVE, taskbar->colour, changeBrightness(taskbar->colour, -TASKBARBORDERDARKERGRADIENTAMOUNT), taskbar->colour, changeBrightness(taskbar->colour, -TASKBARBORDERDARKERGRADIENTAMOUNT), true, true, false, false); //Draw the title bar
 
     //Draw buttons
     //(add rules for when there are no borders later)

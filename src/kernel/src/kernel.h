@@ -8,6 +8,7 @@
 
 
 
+
 typedef struct {
 	Framebuffer* framebuffer;
 	PSF1_FONT* psf1_font;
