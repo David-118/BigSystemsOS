@@ -31,6 +31,18 @@ void setPixel(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned
     }
 }
 
+unsigned int getPixel(Framebuffer* framebuffer, unsigned int x, unsigned int y)
+{
+    const unsigned int SCREENWIDTH = framebuffer->PixelsPerScanLine; //The width of the screen in pixels
+    const unsigned int SCREENHEIGHT = framebuffer->Height; //The height of the screen in pixels
+    
+    if ((y < SCREENHEIGHT) && (x < SCREENWIDTH)) //Do not need to check x>=0, y>=0 as unsigned integers are always positive
+    { //Check if pixel can draw to a valid point
+        unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
+        return *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine));
+    }
+}
+
 
 /**
  * 
@@ -381,6 +393,20 @@ void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int col
         {
             y+= char_height;
             x = 0;
+        }
+    }
+}
+
+void drawImageToBuffer(Framebuffer* framebuffer, Framebuffer* image, unsigned int x, unsigned int y)
+{
+    unsigned int ix, iy;
+    const unsigned int IMAGEWIDTH = image->Width;
+    const unsigned int IMAGEHEIGHT = image->Height;
+    for (ix = 0; ix < IMAGEWIDTH; ix++)
+    {
+        for (iy = 0; iy < IMAGEHEIGHT; iy++)
+        {
+            setPixel(framebuffer, ix+x, iy+y, getPixel(image, ix, iy)); //Sets the pixel (ix+x, iy+y) of the frame buffer to the the pixel (ix, iy) of the image 
         }
     }
 }

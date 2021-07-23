@@ -1,17 +1,13 @@
 #pragma once
 #include <stdint.h>
 #include "boot_info.h"
-#include "windowManager.h"
-#include "guistructures.h"
-#include "graphics.h"
-#include "taskbar.h"
 
 typedef struct {
 	Framebuffer* framebuffer;
 	PSF1_FONT* psf1_font;
 	void* mMap;
-	long mMapSize;
-	long mMapDescriptorSize;
+	uint64_t mMapSize;
+	uint64_t mMapDescriptorSize;
 }BootInfo;
 
 

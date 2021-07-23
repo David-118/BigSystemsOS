@@ -1,11 +1,13 @@
-#include "kernel.h"
-#include "boot_info.h"
-#include "efiMemory.h"
-#include "kernel.h"
-#include "memory.h"
-#include "bitmap.h"
-#include "pageFrameAllocator.h"
+
 #include <stdint.h>
+#include "windowManager.h"
+#include "guistructures.h"
+#include "graphics.h"
+#include "taskbar.h"
+#include "efiMemory.h"
+#include "pageFrameAllocator.h"
+#include "memory.h"
+#include "kernel.h"
 
 
 
@@ -23,11 +25,10 @@
 /**
  * 
  */
- extern uint64_t _KernelStart;
- extern uint64_t _KernelEnd;
+extern uint64_t _KernelStart;
+extern uint64_t _KernelEnd;
 void _start(BootInfo* bootInfo) 
 {
-
     pageFrameAllocator_readEfiMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescriptorSize);
 
     uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
@@ -38,6 +39,13 @@ void _start(BootInfo* bootInfo)
     
 
     clearScreen(bootInfo->framebuffer, 0xffffe0ff);
+    //writeImage(bootInfo->framebuffer);
+    /*
+    Replace this with the desktop background
+    */
+    clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
+    fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));
+    fillCircle(bootInfo->framebuffer, 0, 0, 0, 0, 80, 80, 80, makeColour(255, 255, 0, 255));
     //Window makeWindow(char* NAME, unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool isFullScreen, bool isMinimised, bool isResizable, bool hasBorders, unsigned int textColour, PSF1_FONT* font, unsigned int borderColour)
 
     Window myWindow = makeWindow(bootInfo->framebuffer, "BEANS", 50, 50, 200, 200, false, false, true, true, 0xff000000, bootInfo->psf1_font, makeColour(200, 200, 220, 215));
@@ -111,12 +119,3 @@ const char* int_to_string(int64_t value)
     return str_buffer;
 }
 
-const char* ubyte_to_bin(uint8_t value) 
-{
-    str_buffer[8] = '\0';
-    for (int i = 7; i >= 0; i--) {
-        str_buffer[i] =  (value & 1) + '0';
-        value >>=1;
-    }
-    return str_buffer;
-}
