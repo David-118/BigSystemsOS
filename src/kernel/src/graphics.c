@@ -18,26 +18,19 @@ void setPixel(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned
     if ((y < SCREENHEIGHT) && (x < SCREENWIDTH)) //Do not need to check x>=0, y>=0 as unsigned integers are always positive
     { //Check if pixel can draw to a valid point
         unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
-        *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = colour;
+        if (getAlpha(colour) == 255)
+        { //If not transparent
+            *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = colour;
+        }
+        else
+        { //If transparent
+            unsigned int orginalColour = *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine));
+            
+            *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = getColourGradient(orginalColour, colour, getAlpha(colour), 255); //Include transparency
+        }
     }
 }
 
-/**
- * Sets a specific pixel
- */
-void paintPixel(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned int colour)
-{
-    const unsigned int SCREENWIDTH = framebuffer->PixelsPerScanLine; //The width of the screen in pixels
-    const unsigned int SCREENHEIGHT = framebuffer->Height; //The height of the screen in pixels
-    
-    if ((y < SCREENHEIGHT) && (x < SCREENWIDTH)) //Do not need to check x>=0, y>=0 as unsigned integers are always positive
-    { //Check if pixel can draw to a valid point
-        unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
-        unsigned int orginalColour = *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine));
-        
-        *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = getColourGradient(orginalColour, colour, getAlpha(colour), 255); //Include transparency
-    }
-}
 
 /**
  * 
@@ -125,7 +118,16 @@ void fillRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, unsigned
         {
             for (iy = y*pixelWidth; iy < LoopEndY; iy += pixelWidth)
             {
-                *(unsigned int*)(pixPtr + ix + iy) = colour; //Set colour of pixel
+                if (getAlpha(colour) == 255)
+                { //If not transparent
+                    *(unsigned int*)(pixPtr + ix + iy) = colour; //Set colour of pixel
+                }
+                else
+                { //If transparent
+                    unsigned int orginalColour = *(unsigned int*)(pixPtr + ix + iy);
+                    
+                    *(unsigned int*)(pixPtr + ix + iy) = getColourGradient(orginalColour, colour, getAlpha(colour), 255); //Include transparency
+                }
             }
         }
     }
@@ -161,8 +163,17 @@ void fillGradientRect(Framebuffer* framebuffer, unsigned int x, unsigned int y, 
         {
             for (iy = y*pixelWidth; iy < LoopEndY; iy += pixelWidth)
             {
-                
-                *(unsigned int*)(pixPtr + ix + iy) = getColourGradient(colourTop, colourBottom, iy, LoopEndY); //Set colour of pixel
+                unsigned int colour = getColourGradient(colourTop, colourBottom, iy, LoopEndY);
+                if (getAlpha(colour) == 255)
+                { //If not transparent
+                    *(unsigned int*)(pixPtr + ix + iy) = colour; //Set colour of pixel
+                }
+                else
+                { //If transparent
+                    unsigned int orginalColour = *(unsigned int*)(pixPtr + ix + iy);
+                    
+                    *(unsigned int*)(pixPtr + ix + iy) = getColourGradient(orginalColour, colour, getAlpha(colour), 255); //Include transparency
+                }
             }
         }
     }
@@ -372,10 +383,30 @@ void drawString(Framebuffer* framebuffer, PSF1_FONT* psf1_font, unsigned int col
     }
 }
 
-unsigned int changeBrightness(unsigned int colour, int brightness)
+unsigned int changeBrightness(unsigned int colour, signed int brightness)
 {
-    int maskedByte = brightness & 0xff;
-    return colour + (maskedByte) + (maskedByte<<8) + (maskedByte<<16);
+    const signed int MAXVALUE = 0xff;
+    signed int red = getRed(colour)+brightness;
+    signed int green = getGreen(colour)+brightness;
+    signed int blue = getBlue(colour)+brightness;
+    signed int alpha = getAlpha(colour); //Don't add brightness from alpha
+    if (red > MAXVALUE)
+    {
+        red = MAXVALUE;
+    }
+    if (green > MAXVALUE)
+    {
+        green = MAXVALUE;
+    }
+    if (blue > MAXVALUE)
+    {
+        blue = MAXVALUE;
+    }
+    if (alpha > MAXVALUE)
+    {
+        alpha = MAXVALUE;
+    }
+    return makeColour(red, green, blue, alpha);
 }
 
 unsigned int getColourGradient(unsigned int colourTop, unsigned int colourBottom, unsigned int pos, unsigned int size)

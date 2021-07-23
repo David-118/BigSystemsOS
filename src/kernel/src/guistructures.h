@@ -51,3 +51,30 @@ typedef struct
     Button buttons[3]; //The buttons for the window
 
 }Window;
+
+typedef struct
+{
+	unsigned int relativeX; //The x position of the canvas (note this includes the borders (if they exist))
+    unsigned int relativeY; //The y position of the canvas (note this includes the borders (if they exist))
+	unsigned int width; //The width of the canvas (note this includes the borders (if they exist))
+    unsigned int height; //The height of the canvas (note this includes the borders (if they exist))
+
+    Button buttons[64]; //The buttons for the for the canvas
+
+}Canvas;
+
+typedef struct
+{
+	unsigned int x; //The x position of the taskbar (note this includes the borders (if they exist))
+    unsigned int y; //The y position of the taskbar (note this includes the borders (if they exist))
+	unsigned int width; //The width of the taskbar (note this includes the borders (if they exist))
+    unsigned int height; //The height of the taskbar (note this includes the borders (if they exist))
+
+    unsigned int colour; //The colour of the taskbarbox
+
+    unsigned int textColour; //The colour of the text
+    PSF1_FONT* font; //The font
+
+    Button buttons[64]; //The buttons for the for the taskbar
+
+}TaskBar;

@@ -4,6 +4,7 @@
 #include "windowManager.h"
 #include "guistructures.h"
 #include "graphics.h"
+#include "taskbar.h"
 
 
 

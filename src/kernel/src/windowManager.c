@@ -6,7 +6,8 @@ const unsigned int WINDOWBORDERWIDTH = 4; //The border width of the window
 
 const unsigned int WINDOWTITLEBARHEIGHT = 30; //The height of the window's forehead (oh boy his hairline is bad)
 
-const unsigned int WINDOWBASEFILLCOLOUR = 0xffe0e0e0; //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
+const unsigned int WINDOWDEFAULTFILLCOLOUR = 0xffeeeeee; //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
+//const unsigned int WINDOWDEFAULTBORDERCOLOUR = makeColor(200, 200, 200, 255); //The default background colour of a window (before anythings been drawn)... we'll probably remove this later
 
 
 void drawWindow(Framebuffer* framebuffer, Window* window)
@@ -28,11 +29,11 @@ void drawWindow(Framebuffer* framebuffer, Window* window)
             const unsigned int XOFFSET = 5;
             const unsigned int YOFFSET = 5;
             drawString(framebuffer, window->font, window->textColour, window->NAME, XOFFSET+window->x, YOFFSET+window->y); //Draw the title text
-            fillOutlinedGradientCurvedRect(framebuffer, x, y+WINDOWTITLEBARHEIGHT, width, height-WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, WINDOWBASEFILLCOLOUR, WINDOWBASEFILLCOLOUR, window->borderColour, changeBrightness(window->borderColour, -30), false, false, true, true); //Draw a window with borders 
+            fillOutlinedGradientCurvedRect(framebuffer, x, y+WINDOWTITLEBARHEIGHT, width, height-WINDOWTITLEBARHEIGHT, WINDOWBORDERWIDTH, WINDOWDEFAULTFILLCOLOUR, WINDOWDEFAULTFILLCOLOUR, window->borderColour, changeBrightness(window->borderColour, -30), false, false, true, true); //Draw a window with borders 
         }
         else
         { //If the window does not have outline borders
-            fillRect(framebuffer, x, y, width, height, WINDOWBASEFILLCOLOUR); //Draw a window without borders
+            fillRect(framebuffer, x, y, width, height, WINDOWDEFAULTFILLCOLOUR); //Draw a window without borders
         }
         //Draw buttons
         //(add rules for when there are no borders later)
