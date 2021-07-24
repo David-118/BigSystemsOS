@@ -3,9 +3,10 @@
 
 ## Prerequisites (For Build)
 * GCC
+* NASM
 * make
 * VM Software (such as QEMU)
-* Linux, WSL or Docker
+* Linux, WSL or Docker...
 * ntools 
 
 ## How to Build
@@ -16,6 +17,7 @@ $ make build-x86_64
 ```
 
 ## Emulate
+Note that both of these commands are set up with QEMU
 ### Linux
 ```bash
 $ make run

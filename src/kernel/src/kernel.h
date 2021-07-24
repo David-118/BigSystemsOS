@@ -10,7 +10,6 @@ typedef struct {
 	uint64_t mMapDescriptorSize;
 }BootInfo;
 
-
 void _start(BootInfo* bootInfo);
 const char* uint_to_string(uint64_t value);
 const char* int_to_string(int64_t value);

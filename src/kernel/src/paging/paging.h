@@ -23,7 +23,7 @@ bool paging_getFlag(PageDirEntry* PDE, enum PT_Flag flag);
 void paging_setAddress(PageDirEntry* PDE, uint64_t address);
 uint64_t paging_getAddress(PageDirEntry* PDE);
 
-typedef struct {
+typedef struct  __attribute__((aligned(0x1000))){
     PageDirEntry entries [512];
-} PageTable __attribute__((aligned(0x1000)));
+} PageTable;
 
