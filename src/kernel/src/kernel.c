@@ -25,16 +25,20 @@
  * 
  */
 
-
+BootInfo* g_bootInfo;
 
 void _start(BootInfo* bootInfo) 
 {
+    g_bootInfo = bootInfo;
     kernelInit(bootInfo);
     //clearScreen(bootInfo->framebuffer, 0xffffe0ff);
     //writeImage(bootInfo->framebuffer);
     /*
     Replace this with the desktop background
     */
+    int* test = (int*)0X8000000000;
+    *test = 2;
+
     clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
     fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));
     fillCircle(bootInfo->framebuffer, 0, 0, 0, 0, 80, 80, 80, makeColour(255, 255, 0, 255));

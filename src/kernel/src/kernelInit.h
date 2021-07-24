@@ -4,6 +4,6 @@
 
 void kernelInit(BootInfo* boot_info);
 void kernelInit_memory();
-void kernelInit_gdt(BootInfo *bootInfo);
+void kernelInit_gdt();
 void kernelInit_initInterupts();
 

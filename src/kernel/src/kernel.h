@@ -19,5 +19,6 @@ const char* uint_to_hex(uint64_t value);
 char* concat(const char* str1, const char* str2);
 unsigned int stringLength(char* string);
 
+extern BootInfo* g_bootInfo;
 
 
