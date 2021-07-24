@@ -14,7 +14,7 @@
 #include "paging/paging.h"
 #include "paging/pageTableManager.h"
 
-/**
+/*
  * 
  * JACOB HOW TO COMPILE YOU PLONKER
  * 
@@ -30,10 +30,35 @@
  */
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
+void kernel_init();
 
 
 void _start(BootInfo* bootInfo) 
 {
+    kernel_init();
+    //clearScreen(bootInfo->framebuffer, 0xffffe0ff);
+    //writeImage(bootInfo->framebuffer);
+    /*
+    Replace this with the desktop background
+    */
+    clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
+    fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));
+    fillCircle(bootInfo->framebuffer, 0, 0, 0, 0, 80, 80, 80, makeColour(255, 255, 0, 255));
+    //Window makeWindow(char* NAME, unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool isFullScreen, bool isMinimised, bool isResizable, bool hasBorders, unsigned int textColour, PSF1_FONT* font, unsigned int borderColour)
+
+    Window myWindow = makeWindow(bootInfo->framebuffer, "BEANS", 50, 50, 200, 200, false, false, true, true, 0xff000000, bootInfo->psf1_font, makeColour(200, 200, 220, 215));
+    TaskBar myTaskBar = makeTaskbar(bootInfo->framebuffer, 1024, 128, makeColour(200, 200, 220, 215));
+    drawWindow(bootInfo->framebuffer, &myWindow);
+    drawTaskbar(bootInfo->framebuffer, &myTaskBar);
+
+    //unsigned const BORDERWIDTH = 10;
+    //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
+    
+    while (true); //stops ths os from dying
+}
+
+// Setsup memory
+void kernel_init(BootInfo* bootInfo) {
     pageFrameAllocator_readEfiMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescriptorSize);
 
     uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
@@ -45,6 +70,8 @@ void _start(BootInfo* bootInfo)
     uint64_t mMapEntries = bootInfo->mMapSize / bootInfo->mMapDescriptorSize;    
     
     PageTable* PML4 = (PageTable*)pageFrameAllocator_requestPage();
+
+
     PageMapIndex pageIndex = PageMapIndexer__virtualAddress(4096 * 52 + 0x50000 * 7);
     
 
@@ -65,28 +92,6 @@ void _start(BootInfo* bootInfo)
 
     // Places the page table pointer in a special regester using assembly
     asm("mov %0, %%cr3" :: "r" (PML4));
-    
-
-    // I don't know how to use this so im just going draw a bunch of text to the screen lol
-    //clearScreen(bootInfo->framebuffer, 0xffffe0ff);
-    //writeImage(bootInfo->framebuffer);
-    /*
-    Replace this with the desktop background
-    */
-    clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
-    fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));
-    fillCircle(bootInfo->framebuffer, 0, 0, 0, 0, 80, 80, 80, makeColour(255, 255, 0, 255));
-    //Window makeWindow(char* NAME, unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool isFullScreen, bool isMinimised, bool isResizable, bool hasBorders, unsigned int textColour, PSF1_FONT* font, unsigned int borderColour)
-
-    Window myWindow = makeWindow(bootInfo->framebuffer, "BEANS", 50, 50, 200, 200, false, false, true, true, 0xff000000, bootInfo->psf1_font, makeColour(200, 200, 220, 215));
-    TaskBar myTaskBar = makeTaskbar(bootInfo->framebuffer, 1024, 128, makeColour(200, 200, 220, 215));
-    drawWindow(bootInfo->framebuffer, &myWindow);
-    drawTaskbar(bootInfo->framebuffer, &myTaskBar);
-
-    //unsigned const BORDERWIDTH = 10;
-    //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
-    
-    
 }
 
 

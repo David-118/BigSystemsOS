@@ -14,6 +14,7 @@ uint64_t usedMemory;
 bool initialized = false;
 
 Bitmap pageFrameAllocator_pageBitmap;
+uint64_t pageBitmapIndex = 0;
 
 
 void initBitmap(void* addr, size_t size) 
@@ -36,6 +37,7 @@ void pageFrameAllocator_unreservePage(void *address) {
     if (bitmap_set(&pageFrameAllocator_pageBitmap, index, false)) {
         freeMemory+= 4096;
         reservedMemory-= 4096;
+        if (pageBitmapIndex > index) {pageBitmapIndex = index;}
     }
     
 }
@@ -108,6 +110,7 @@ void pageFrameAllocator_freePage(void *address) {
     if (bitmap_set(&pageFrameAllocator_pageBitmap, index, false)){
         freeMemory+= 4096;
         usedMemory-= 4096;
+        if (pageBitmapIndex > index) {pageBitmapIndex = index;}
     }
 }
 
@@ -133,13 +136,14 @@ void pageFrameAllocator_lockPages(void *address, uint64_t pageCount) {
     }
 }
 
+
 void* pageFrameAllocator_requestPage() {
     uint64_t row = 0, col=0;
-    for (uint64_t index = 0; index < pageFrameAllocator_pageBitmap.size * 8; index++) {
-        if (bitmap_get(&pageFrameAllocator_pageBitmap, index) == true) {continue;}
+    for (; pageBitmapIndex < pageFrameAllocator_pageBitmap.size * 8; pageBitmapIndex++) {
+        if (bitmap_get(&pageFrameAllocator_pageBitmap, pageBitmapIndex) == true) {continue;}
 
-        pageFrameAllocator_lockPage((void*)(index * 4096));
-        return (void*) (index * 4096);
+        pageFrameAllocator_lockPage((void*)(pageBitmapIndex * 4096));
+        return (void*) (pageBitmapIndex * 4096);
     }   
 
     return NULL; // Page Frame to swap to file
