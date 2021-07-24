@@ -1,9 +1,9 @@
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
-#include "efiMemory.h"
-#include "bitmap.h"
-#include "memory.h"
+#include "../efiMemory.h"
+#include "../bitmap.h"
+#include "../memory.h"
 
 void pageFrameAllocator_readEfiMemoryMap(EFI_MEMORY_DESCRIPTOR* mMap, size_t mMapSize, size_t mMapDescriptorSize);
 void pageFrameAllocator_freePage(void* address);
@@ -17,5 +17,4 @@ uint64_t pageFrameAllocator_getUsedRAM();
 uint64_t pageFrameAllocator_getReservedRAM();
 
 
-uint8_t* pageFrameAllocator_getPageBitmap();
-size_t pageFrameAllocator_getPageBitmapSize();
+Bitmap* pageFrameAllocator_getPageBitmap();
