@@ -6,11 +6,13 @@
 #include "paging/pageTableManager.h"
 #include "gdt/gdt.h"
 #include "kernelInit.h"
+#include "interrupts/IDT.h"
 #include <stdint.h>
 
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
+
 
 void kernelInit(BootInfo* bootInfo) {
     kernelInit_memory(bootInfo);
@@ -22,6 +24,14 @@ void kernelInit_gdt(BootInfo *bootInfo) {
     gdtDescriptor.offset = (uint64_t) &DefaultGDT;
     LoadGDT(&gdtDescriptor);
 
+}
+
+IDTR idtr;
+void kernelInit_initInterupts() {
+    idtr.limit = 0x0FFF;
+    idtr.offset = (uint64_t)pageFrameAllocator_requestPage();
+
+    
 }
 
 void kernelInit_memory(BootInfo* bootInfo) {
