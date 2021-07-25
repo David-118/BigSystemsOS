@@ -8,6 +8,7 @@
 #define ICW1_INIT 0x10
 #define ICW1_ICW4 0x01
 #define ICW4_8086 0x01
+#define PIC_EOI 0x20
 
 
 struct interrupt_frame;
@@ -29,3 +30,5 @@ __attribute__((interrupt)) void gpFault_handler(struct interrupt_frame* frame);
 __attribute__((interrupt)) void keyboard_handler(struct interrupt_frame* frame);
 
 void interrupts_remapPIC();
+void interrupts_picEndMaster();
+void interrupts_picEndSlave();

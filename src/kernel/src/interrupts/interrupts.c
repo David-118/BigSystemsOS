@@ -19,7 +19,10 @@ __attribute__((interrupt)) void gpFault_handler(struct interrupt_frame* frame){
 }
 
 __attribute__((interrupt)) void keyboard_handler(struct interrupt_frame* frame) {
-    panic_panic("keyboard pressed");
+    panic_test();
+    uint8_t scancode = io_readFromBus(0x60);
+    interrupts_picEndMaster();
+
 }
 
 void interrupts_remapPIC() {
@@ -62,3 +65,12 @@ void interrupts_remapPIC() {
     io_writeToBus(PIC2_DATA, bitmask2);
     io_wait();
 }    
+
+void interrupts_picEndMaster() {
+    io_writeToBus(PIC1_COMMAND, PIC_EOI);
+}
+
+void interrupts_picEndSlave() {
+    io_writeToBus(PIC2_COMMAND, PIC_EOI);
+    interrupts_picEndMaster();
+}
