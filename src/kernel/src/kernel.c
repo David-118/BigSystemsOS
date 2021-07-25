@@ -56,7 +56,18 @@ void _start(BootInfo* bootInfo)
     //unsigned const BORDERWIDTH = 10;
     //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
 
-    
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+
+
     while (true); //stops the os from dying
 }
 
@@ -94,6 +105,30 @@ const char* uint_to_string(uint64_t value)
         str_buffer[size - index] = (value % 10) + '0';
         index++;
         value /= 10;
+    }
+    str_buffer[size + 1] = '\0';
+    return str_buffer;
+}
+
+const char HEX_NIBBLES[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+const char* uint_to_hex(uint64_t value)
+{
+    if (value==0) {return "0";}
+    uint64_t size = 0;
+    uint64_t sizeTest = value;
+
+    while ((sizeTest >> 4) > 0)
+    {
+        sizeTest >>= 4;
+        size++;
+    }
+
+    int index = 0;
+    while (value > 0)
+    {
+        str_buffer[size - index] = HEX_NIBBLES[value % 16];
+        index++;
+        value >>= 4;
     }
     str_buffer[size + 1] = '\0';
     return str_buffer;

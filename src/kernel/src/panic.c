@@ -15,9 +15,14 @@ void panic_panic(const char *message) {
     while(true);
 }
 
-// this function will be removed in the future
+// these function will be removed in the future
 uint64_t row = 0, col = 0;
 void panic_test() {
     drawString(framebuffer, font, makeColour(0, 0, 0, 255), "reached", col, row);
+    row+=16;
+}
+
+void panic_debug(const char* message) {
+     drawString(framebuffer, font, makeColour(0, 0, 0, 255), message, col, row);
     row+=16;
 }

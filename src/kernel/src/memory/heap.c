@@ -28,7 +28,7 @@ void heap_init(void *heapAddress, size_t pageCount)
     HeapSegmentHeader* startSeg = (HeapSegmentHeader*)heapAddress;
     startSeg->length = heapLength - sizeof(HeapSegmentHeader);
     startSeg->next = NULL;
-    startSeg->last = NULL;
+    startSeg->previous = NULL;
     startSeg->free = true;
     lastHeader = startSeg;
 }
@@ -47,7 +47,7 @@ void* malloc(size_t size) {
         if (currentSeg->free) 
         {
             if (currentSeg->length > size) {
-                head_heapSegmentHeader_split(size);
+                head_heapSegmentHeader_split(currentSeg, size);
                 currentSeg->free = false;
                 return (void*)((uint64_t) currentSeg + sizeof(HeapSegmentHeader));
             }
@@ -65,8 +65,22 @@ void* malloc(size_t size) {
     return malloc(size);
 }
 
-HeapSegmentHeader* head_heapSegmentHeader_split(size_t splitLength) {
-    return NULL;
+HeapSegmentHeader* head_heapSegmentHeader_split(HeapSegmentHeader* header, size_t splitLength) {
+    if (splitLength < 0x10) {return NULL;}
+    int64_t splitSegmentLength = header->length - splitLength - (sizeof(HeapSegmentHeader));
+    if (splitSegmentLength < 0x10) {return NULL;}
+
+    HeapSegmentHeader* newSplitHeader = (HeapSegmentHeader*)((size_t)header + splitLength + sizeof(HeapSegmentHeader));
+    header->next->previous = newSplitHeader;
+    newSplitHeader->next = header->next;
+    header->next = newSplitHeader;
+    newSplitHeader->previous = header;
+    newSplitHeader->length = splitSegmentLength;
+    newSplitHeader->free = header->free;
+    header->length = splitLength;
+    
+    if (lastHeader == header) {lastHeader = newSplitHeader;}
+    return newSplitHeader;
 }
 
 void heap_expand(size_t length) {
