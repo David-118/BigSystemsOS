@@ -6,13 +6,17 @@
 #include "../memory.h"
 #include "paging.h"
 
+ PageTable* PLM4;
+void pageTableManager_init(PageTable* PML4Address) {
+   PLM4 = PML4Address;
+}
 
 
-void pageTableManager_mapMemory(PageTable* PML4Address, void* virtualMemory, void* physicalMemory) {
+void pageTableManager_mapMemory(void* virtualMemory, void* physicalMemory) {
     PageMapIndex index = PageMapIndexer__virtualAddress((uint64_t)virtualMemory);
     PageDirEntry PDE;
 
-    PDE = PML4Address->entries[index.PDP_i];
+    PDE = PLM4->entries[index.PDP_i];
 
     PageTable* PDP;
     if (!paging_getFlag(&PDE, present)) 
@@ -22,7 +26,7 @@ void pageTableManager_mapMemory(PageTable* PML4Address, void* virtualMemory, voi
         paging_setAddress(&PDE, (uint64_t)PDP >> 12);
         paging_setFlag(&PDE, present, true);
         paging_setFlag(&PDE, readWrite, true);
-        PML4Address->entries[index.PDP_i] = PDE;
+        PLM4->entries[index.PDP_i] = PDE;
     }
     else 
     {

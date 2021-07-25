@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "memory/heap.h"
 #include "paging/pageMapIndexer.h"
 #include "efiMemory.h"
 #include "paging/pageFrameAllocator.h"
@@ -21,6 +22,7 @@ extern uint64_t _KernelEnd;
 void kernelInit(BootInfo* bootInfo) {
     kernelInit_gdt();
     kernelInit_memory(bootInfo);
+    heap_init((void*)0x0000100000000000, 0x10);
     panic_init(bootInfo);
     kernelInit_initInterupts();
 }
@@ -74,16 +76,17 @@ void kernelInit_memory(BootInfo* bootInfo) {
 
     uint64_t mMapEntries = bootInfo->mMapSize / bootInfo->mMapDescriptorSize;    
     
-    PageTable* PML4 = (PageTable*)pageFrameAllocator_requestPage();
+    PageTable* pageMapL4 = (PageTable*)pageFrameAllocator_requestPage();
+    pageTableManager_init(pageMapL4);
 
 
     PageMapIndex pageIndex = PageMapIndexer__virtualAddress(4096 * 52 + 0x50000 * 7);
-    
 
-    memory_memset(PML4, 0 , 4096);
+
+    memory_memset(pageMapL4, 0 , 4096);
 
     for (uint64_t i = 0; i < memory_getSize(bootInfo->mMap, mMapEntries, bootInfo->mMapDescriptorSize); i+=4096) {
-        pageTableManager_mapMemory(PML4, (void*)i, (void*)i);
+        pageTableManager_mapMemory((void*)i, (void*)i);
     }
     
     uint64_t fbBase = (uint64_t)bootInfo->framebuffer->BaseAddress;
@@ -91,12 +94,12 @@ void kernelInit_memory(BootInfo* bootInfo) {
     pageFrameAllocator_lockPages((void*) fbBase, fbSize / 4096 + 1);
 
     for (uint64_t i = fbBase; i < fbBase + fbSize; i += 4096) {
-         pageTableManager_mapMemory(PML4, (void*)i, (void*)i);
+         pageTableManager_mapMemory((void*)i, (void*)i);
     }
 
 
     // Places the page table pointer in a special regester using assembly
-    asm("mov %0, %%cr3" :: "r" (PML4));
+    asm("mov %0, %%cr3" :: "r" (pageMapL4));
 }
 
 void kernelInit_io() {

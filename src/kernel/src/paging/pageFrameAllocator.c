@@ -92,15 +92,17 @@ void pageFrameAllocator_readEfiMemoryMap(EFI_MEMORY_DESCRIPTOR *mMap, size_t mMa
     initBitmap(largestFreeMemSeg, pageBitmapSize);
     
 
-    pageFrameAllocator_lockPages(&pageFrameAllocator_pageBitmap, pageFrameAllocator_pageBitmap.size / 4096 + 1);
+    pageFrameAllocator_reservePages(0, memorySize / 0x1000 + 1);
+
     
     for (uint64_t i = 0; i < mMapEntries; i++) {
         EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)mMap + (i * mMapDescriptorSize));
-        if (desc->type != EfiConventionalMemory) {
-            pageFrameAllocator_reservePages(desc->physAddr, desc->numPages);
+        if (desc->type == EfiConventionalMemory) {
+            pageFrameAllocator_unreservePages(desc->physAddr, desc->numPages);
         }
     }
-
+    pageFrameAllocator_reservePages(0, 0x100); // Keeping the BIOS safe
+    pageFrameAllocator_lockPages(&pageFrameAllocator_pageBitmap, pageFrameAllocator_pageBitmap.size / 4096 + 1);
 }
 
 void pageFrameAllocator_freePage(void *address) {
