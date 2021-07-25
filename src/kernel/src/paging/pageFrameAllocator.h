@@ -11,6 +11,7 @@ void pageFrameAllocator_lockPage(void* address);
 void pageFrameAllocator_freePages(void* address, uint64_t pageCount);
 void pageFrameAllocator_lockPages(void* address, uint64_t pageCount);
 void* pageFrameAllocator_requestPage();
+void* pageFrameAllocator_requestPage_debugmode();
 
 uint64_t pageFrameAllocator_getFreeRAM();
 uint64_t pageFrameAllocator_getUsedRAM();

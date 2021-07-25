@@ -56,16 +56,19 @@ void _start(BootInfo* bootInfo)
     //unsigned const BORDERWIDTH = 10;
     //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
 
+    panic_debug(uint_to_hex((uint64_t)malloc(0x8000)));
+
+    void* address = malloc(0x8000);
+    panic_debug(uint_to_hex((uint64_t)address));
     panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
+
+    free(address);
+
+
+    panic_debug(uint_to_hex((uint64_t)malloc(0x8000)));
+
+
+
 
 
     while (true); //stops the os from dying

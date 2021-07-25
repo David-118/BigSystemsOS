@@ -84,5 +84,51 @@ HeapSegmentHeader* head_heapSegmentHeader_split(HeapSegmentHeader* header, size_
 }
 
 void heap_expand(size_t length) {
+    if (length % 0x1000) {
+        length -= length % 0x1000;
+        length += 0x1000;
+    } 
 
+    size_t pageCount = length / 0x1000;
+    HeapSegmentHeader* newSegment = (HeapSegmentHeader*)heapEnd;
+
+    for (size_t i = 0; i < pageCount; i++) {
+        pageTableManager_mapMemory(heapEnd,pageFrameAllocator_requestPage_debugmode());
+        heapEnd = (void*)((size_t)heapEnd + 0x1000);
+    }
+    
+
+    newSegment->free = true;
+    newSegment->previous = lastHeader;
+    lastHeader->next = newSegment;
+
+    lastHeader = newSegment;
+    newSegment -> next = NULL;
+    newSegment -> length = length - sizeof(HeapSegmentHeader);
+
+    heap_heapSegmentHeader_combineBackward(newSegment);
+}
+
+void heap_heapSegmentHeader_combineBackward(HeapSegmentHeader *header) {
+    if (header->previous != NULL && header->previous->free){
+        heap_heapSegmentHeader_combineForward(header->previous);
+    }
+}
+
+void heap_heapSegmentHeader_combineForward(HeapSegmentHeader *header) {
+    if (header->next == NULL || !header->next->free) {return;}
+    if (header->next == lastHeader) {lastHeader = header;}
+
+    if (header->next->next != NULL) {
+        header->next->previous = header;
+    }
+
+    header->length += header->next->length + sizeof(HeapSegmentHeader);
+}
+
+void free(void* address) {
+    HeapSegmentHeader* segment = (HeapSegmentHeader*) address - 1;
+    segment->free = true;
+    heap_heapSegmentHeader_combineForward(segment);
+    heap_heapSegmentHeader_combineBackward(segment);
 }

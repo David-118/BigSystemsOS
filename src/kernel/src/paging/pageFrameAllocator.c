@@ -7,6 +7,7 @@
 #include "../memory.h"
 #include "../bitmap.h"
 #include "../kernel.h"
+#include "../panic.h"
 
 uint64_t freeMemory;
 uint64_t reservedMemory;
@@ -140,20 +141,28 @@ void pageFrameAllocator_lockPages(void *address, uint64_t pageCount) {
 
 
 void* pageFrameAllocator_requestPage() {
-    uint64_t row = 0, col=0;
     for (; pageBitmapIndex < pageFrameAllocator_pageBitmap.size * 8; pageBitmapIndex++) {
         if (bitmap_get(&pageFrameAllocator_pageBitmap, pageBitmapIndex) == true) {continue;}
 
         pageFrameAllocator_lockPage((void*)(pageBitmapIndex * 4096));
         return (void*) (pageBitmapIndex * 4096);
     }   
+    return NULL; // Page Frame to swap to file
+}
 
+void* pageFrameAllocator_requestPage_debugmode() {
+    for (; pageBitmapIndex < pageFrameAllocator_pageBitmap.size * 8; pageBitmapIndex++) {
+        if (bitmap_get(&pageFrameAllocator_pageBitmap, pageBitmapIndex) == true) {continue;}
+        pageFrameAllocator_lockPage((void*)(pageBitmapIndex * 4096));
+        return (void*) (pageBitmapIndex * 4096);
+    }   
     return NULL; // Page Frame to swap to file
 }
 
 uint64_t pageFrameAllocator_getFreeRAM(){
     return freeMemory;
 }
+
 uint64_t pageFrameAllocator_getUsedRAM(){
     return usedMemory;
 }

@@ -13,6 +13,7 @@ typedef struct _s{
 
 void heap_heapSegmentHeader_combineForward(HeapSegmentHeader* header);
 void heap_heapSegmentHeader_combineBackward(HeapSegmentHeader* header);
+
 HeapSegmentHeader* head_heapSegmentHeader_split(HeapSegmentHeader* header, size_t splitLength);
 
 void heap_init(void* heapAddress, size_t pageCount);
