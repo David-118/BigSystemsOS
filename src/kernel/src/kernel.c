@@ -36,8 +36,10 @@ void _start(BootInfo* bootInfo)
     /*
     Replace this with the desktop background
     */
-    int* test = (int*)0X8000000000;
-    *test = 2;
+
+    //Causes a page fault kernel panic
+    //int* x = (int*) 0x800000000;
+    //x = 2;
 
     clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
     fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));

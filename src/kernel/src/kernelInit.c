@@ -9,6 +9,8 @@
 #include "kernelInit.h"
 #include "interrupts/IDT.h"
 #include "interrupts/interrupts.h"
+#include "panic.h"
+#include "io.h"
 #include <stdint.h>
 
 
@@ -19,6 +21,7 @@ extern uint64_t _KernelEnd;
 void kernelInit(BootInfo* bootInfo) {
     kernelInit_gdt();
     kernelInit_memory(bootInfo);
+    panic_init(bootInfo);
     kernelInit_initInterupts();
 }
 
@@ -33,12 +36,31 @@ IDTR idtr;
 void kernelInit_initInterupts() {
     idtr.limit = 0x0FFF;
     idtr.offset = (uint64_t)pageFrameAllocator_requestPage();
+
+    IDTDescEntry* int_DoubleFault = (IDTDescEntry*)(idtr.offset + 0x8 * sizeof(IDTDescEntry));
+    IDTR_IDTDescEntry_setOffset(int_DoubleFault, (uint64_t)doubleFault_handler);
+    int_DoubleFault->typeAttr = ITA_TA_InterruptGate;
+    int_DoubleFault->selector = 0x08;
+
+    IDTDescEntry* int_GPFault = (IDTDescEntry*)(idtr.offset + 0xD * sizeof(IDTDescEntry));
+    IDTR_IDTDescEntry_setOffset(int_GPFault, (uint64_t)gpFault_handler);
+    int_GPFault->typeAttr = ITA_TA_InterruptGate;
+    int_GPFault->selector = 0x08;
+
     IDTDescEntry* int_PageFault = (IDTDescEntry*)(idtr.offset + 0xE * sizeof(IDTDescEntry));
     IDTR_IDTDescEntry_setOffset(int_PageFault, (uint64_t)pageFault_handler);
     int_PageFault->typeAttr = ITA_TA_InterruptGate;
     int_PageFault->selector = 0x08;
 
+    IDTDescEntry* int_Keyboard = (IDTDescEntry*)(idtr.offset + 0x21 * sizeof(IDTDescEntry));
+    IDTR_IDTDescEntry_setOffset(int_Keyboard, (uint64_t)keyboard_handler);
+    int_Keyboard->typeAttr = ITA_TA_InterruptGate;
+    int_Keyboard->selector = 0x08;
+    
     asm("lidt %0" :: "m"(idtr));
+
+    interrupts_remapPIC();
+    kernelInit_io();
 }   
 
 void kernelInit_memory(BootInfo* bootInfo) {
@@ -75,4 +97,13 @@ void kernelInit_memory(BootInfo* bootInfo) {
 
     // Places the page table pointer in a special regester using assembly
     asm("mov %0, %%cr3" :: "r" (PML4));
+}
+
+void kernelInit_io() {
+    // Setsup maskable interupts
+    io_writeToBus(PIC1_DATA, 0b11111101);
+    io_writeToBus(PIC2_DATA, 0b11111111);
+
+    // Enables maskable intrupts
+    asm("sti");
 }
