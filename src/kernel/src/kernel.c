@@ -9,6 +9,8 @@
 #include "graphics.h"
 #include "taskbar.h"
 #include "kernel.h"
+#include "memory/heap.h"
+#include "panic.h"
 
 /*
  * 
@@ -53,8 +55,9 @@ void _start(BootInfo* bootInfo)
 
     //unsigned const BORDERWIDTH = 10;
     //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
+
     
-    while (true); //stops ths os from dying
+    while (true); //stops the os from dying
 }
 
 // Setsup memory
@@ -76,14 +79,15 @@ char str_buffer[128];
 const char* uint_to_string(uint64_t value)
 {
     if (value==0) {return "0";}
-    unsigned int size = 0;
-    unsigned int sizeTest = value;
+    uint64_t size = 0;
+    uint64_t sizeTest = value;
 
     while ((sizeTest / 10) > 0)
     {
         sizeTest /= 10;
         size++;
-    }        
+    }
+
     int index = 0;
     while (value > 0)
     {
