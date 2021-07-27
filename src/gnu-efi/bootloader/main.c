@@ -2,6 +2,8 @@
 #include <efilib.h>
 #include <elf.h>
 #include "boot_info.h"
+#include "efiapi.h"
+#include "efibind.h"
 
 typedef struct {
 	Framebuffer* framebuffer;
@@ -9,6 +11,7 @@ typedef struct {
 	EFI_MEMORY_DESCRIPTOR* mMap;
 	UINTN mMapSize;
 	UINTN mMapDescriptorSize;
+	void* rootSystemDescriptorPointer;
 }BootInfo;
 
 Framebuffer framebuffer;
@@ -35,6 +38,13 @@ Framebuffer* InitializeGOP(){
 
 	return &framebuffer;
 	
+}
+
+UINTN stringComapre(CHAR8* a, CHAR8* b, UINTN length) {
+	for (UINTN i = 0; i < length; i++) {
+		if (*a != *b) {return 0;}
+	}
+	return 1;
 }
 
 EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable){
@@ -172,6 +182,21 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
 	Print(L"Kernel Loaded\n\r");
 	
+	EFI_CONFIGURATION_TABLE* configTable = SystemTable->ConfigurationTable;
+	void* rsdp = NULL;
+	EFI_GUID Acpi2TableGuid = ACPI_20_TABLE_GUID;
+
+	for (UINTN index = 0; index < SystemTable->NumberOfTableEntries; index++) {
+		if (CompareGuid(&configTable[index].VendorGuid, &Acpi2TableGuid)) {
+			if (stringComapre((CHAR8*)"RSD PTR", (CHAR8*)configTable->VendorTable, 8)) {
+				rsdp = (void*) configTable->VendorTable;
+				break;
+			}
+		}
+		configTable++;
+	}
+
+
 	void (*KernelStart)(BootInfo*) = ((__attribute__((sysv_abi)) void (*)(BootInfo*) ) header.e_entry);
 
 	PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
@@ -210,6 +235,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	bootInfo.mMap = Map;
 	bootInfo.mMapSize = MapSize;
 	bootInfo.mMapDescriptorSize = DescriptorSize;
+	bootInfo.rootSystemDescriptorPointer = rsdp;
 
 	SystemTable->BootServices->ExitBootServices(ImageHandle, MapKey);
 

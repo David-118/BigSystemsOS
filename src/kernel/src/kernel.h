@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "boot_info.h"
+#include "acpi.h"
 
 typedef struct {
 	Framebuffer* framebuffer;
@@ -8,6 +9,7 @@ typedef struct {
 	void* mMap;
 	uint64_t mMapSize;
 	uint64_t mMapDescriptorSize;
+	ACPI_RSDP2* rootSystemDescriptorPointer;
 }BootInfo;
 
 void _start(BootInfo* bootInfo);

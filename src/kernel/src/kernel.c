@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "boot_info.h"
 #include "kernelInit.h"
 
 #include "windowManager.h"
@@ -56,22 +57,12 @@ void _start(BootInfo* bootInfo)
     //unsigned const BORDERWIDTH = 10;
     //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
 
-    panic_debug(uint_to_hex((uint64_t)malloc(0x8000)));
+    panic_debug(uint_to_hex((uint64_t)bootInfo->rootSystemDescriptorPointer));
+    panic_debug((const char*)bootInfo->rootSystemDescriptorPointer);
 
-    void* address = malloc(0x8000);
-    panic_debug(uint_to_hex((uint64_t)address));
-    panic_debug(uint_to_hex((uint64_t)malloc(0x100)));
-
-    free(address);
-
-
-    panic_debug(uint_to_hex((uint64_t)malloc(0x8000)));
-
-
-
-
-
-    while (true); //stops the os from dying
+    while (true){
+        asm("hlt");
+    }; //stops the os from dying
 }
 
 // Setsup memory

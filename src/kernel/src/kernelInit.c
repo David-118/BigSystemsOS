@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "kernel.h"
 #include "memory/heap.h"
 #include "paging/pageMapIndexer.h"
 #include "efiMemory.h"
@@ -12,11 +13,21 @@
 #include "interrupts/interrupts.h"
 #include "panic.h"
 #include "io.h"
+#include "acpi.h"
 #include <stdint.h>
 
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
+
+void kerenelInit_acpi(BootInfo* bootInfo) {
+    ACPI_SDTHeader* xsdt = (ACPI_SDTHeader*)(bootInfo->rootSystemDescriptorPointer->XSDTAddress);
+
+    for (int i = 0; i < 4; i++) {
+        drawChar(bootInfo->framebuffer, bootInfo->psf1_font, 0x000000ff, xsdt->signature[i], i*8, 16);
+    }
+
+}
 
 
 void kernelInit(BootInfo* bootInfo) {
@@ -24,6 +35,7 @@ void kernelInit(BootInfo* bootInfo) {
     kernelInit_memory(bootInfo);
     heap_init((void*)0x0000100000000000, 0x10);
     panic_init(bootInfo);
+    kerenelInit_acpi(bootInfo);
     kernelInit_initInterupts();
 }
 
