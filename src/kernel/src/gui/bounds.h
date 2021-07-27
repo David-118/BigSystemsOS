@@ -15,35 +15,23 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#pragma  once
 
-enum DescType
-{
-    EfiLoaderCode ,
-    EfiReservedMemoryType ,
-    EfiLoaderData ,
-    EfiBootServicesCode ,
-    EfiBootServicesData ,
-    EfiRuntimeServicesCode ,
-    EfiRuntimeServicesData ,
-    EfiConventionalMemory ,
-    EfiUnusableMemory ,
-    EfiACPIReclaimMemory ,
-    EfiACPIMemoryNVS ,
-    EfiMemoryMappedIO ,
-    EfiPalCode ,
-};
+#pragma once
 
-typedef struct
-{
-    enum DescType type;
-    void* physAddr;
-    void* virtAddr;
-    unsigned long numPages;
-    unsigned long attribs;
-} EFI_MEMORY_DESCRIPTOR;
+#include "guistructures.h"
+#include "stdbool.h"
 
+unsigned int getX1(Bounds* b);
+unsigned int getY1(Bounds* b);
+unsigned int getX2(Bounds* b);
+unsigned int getY2(Bounds* b);
 
+unsigned int getWidth(Bounds* b);
+unsigned int getHeight(Bounds* b);
 
+void moveBound(Bounds* b, unsigned int x, unsigned int y);
 
-extern const char* EFI_MEMORY_TYPE_STRINGS[];
+bool isPointInBounds(Point* p, Bounds* bounds);
+
+Point getPosRelativeTo(Point* p1, Point* p2);
+Bounds getBoundsRelativeTo(Bounds* bounds, Point* p);

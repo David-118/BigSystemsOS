@@ -15,35 +15,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#pragma  once
 
-enum DescType
-{
-    EfiLoaderCode ,
-    EfiReservedMemoryType ,
-    EfiLoaderData ,
-    EfiBootServicesCode ,
-    EfiBootServicesData ,
-    EfiRuntimeServicesCode ,
-    EfiRuntimeServicesData ,
-    EfiConventionalMemory ,
-    EfiUnusableMemory ,
-    EfiACPIReclaimMemory ,
-    EfiACPIMemoryNVS ,
-    EfiMemoryMappedIO ,
-    EfiPalCode ,
-};
+#pragma once
+#include "boot_info.h"
+#include "stdbool.h"
+#include "windowManager.h"
+#include "../kernel.h"
+#include "guistructures.h"
+#include "mousePointer.h"
+#include "windowManager.h"
 
-typedef struct
-{
-    enum DescType type;
-    void* physAddr;
-    void* virtAddr;
-    unsigned long numPages;
-    unsigned long attribs;
-} EFI_MEMORY_DESCRIPTOR;
-
-
-
-
-extern const char* EFI_MEMORY_TYPE_STRINGS[];
+void drawButton(Framebuffer* framebuffer, Window* window, Button* button);
+Button makeButton(char* TEXT, unsigned int relativeX, unsigned int relativeY, int width, int height, unsigned int fillColour, unsigned int outlineColour, unsigned int textColour, PSF1_FONT* font);
+Point getButtonActualPos(Window* window, Button* button);

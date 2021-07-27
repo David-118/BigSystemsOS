@@ -15,35 +15,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#pragma  once
+#pragma once
+#include "stdbool.h"
+#include "guistructures.h"
+#include "graphics.h"
+#include "bounds.h"
 
-enum DescType
-{
-    EfiLoaderCode ,
-    EfiReservedMemoryType ,
-    EfiLoaderData ,
-    EfiBootServicesCode ,
-    EfiBootServicesData ,
-    EfiRuntimeServicesCode ,
-    EfiRuntimeServicesData ,
-    EfiConventionalMemory ,
-    EfiUnusableMemory ,
-    EfiACPIReclaimMemory ,
-    EfiACPIMemoryNVS ,
-    EfiMemoryMappedIO ,
-    EfiPalCode ,
-};
+MousePointer makeMousePointer(unsigned int x, unsigned int y);
 
-typedef struct
-{
-    enum DescType type;
-    void* physAddr;
-    void* virtAddr;
-    unsigned long numPages;
-    unsigned long attribs;
-} EFI_MEMORY_DESCRIPTOR;
+void drawMousePointer(Framebuffer* framebuffer, MousePointer* mousePointerPointer);
 
-
-
-
-extern const char* EFI_MEMORY_TYPE_STRINGS[];
+bool isMouseInBounds(MousePointer* mousePointerPointer, Bounds* bounds);

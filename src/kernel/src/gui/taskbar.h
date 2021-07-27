@@ -15,35 +15,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#pragma  once
+#pragma once
 
-enum DescType
-{
-    EfiLoaderCode ,
-    EfiReservedMemoryType ,
-    EfiLoaderData ,
-    EfiBootServicesCode ,
-    EfiBootServicesData ,
-    EfiRuntimeServicesCode ,
-    EfiRuntimeServicesData ,
-    EfiConventionalMemory ,
-    EfiUnusableMemory ,
-    EfiACPIReclaimMemory ,
-    EfiACPIMemoryNVS ,
-    EfiMemoryMappedIO ,
-    EfiPalCode ,
-};
+#include "boot_info.h"
+#include "windowManager.h"
+#include "guistructures.h"
+#include "graphics.h"
 
-typedef struct
-{
-    enum DescType type;
-    void* physAddr;
-    void* virtAddr;
-    unsigned long numPages;
-    unsigned long attribs;
-} EFI_MEMORY_DESCRIPTOR;
-
-
-
-
-extern const char* EFI_MEMORY_TYPE_STRINGS[];
+void drawTaskbar(Framebuffer* framebuffer, TaskBar* taskbar);
+TaskBar makeTaskbar(Framebuffer* framebuffer, unsigned int width, unsigned int height, unsigned int colour);

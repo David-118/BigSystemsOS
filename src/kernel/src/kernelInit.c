@@ -1,3 +1,21 @@
+/*
+ * Copyright © 2021 BIG SYSTEMS INC
+ *
+ * This file is part of BIG SYSTEMS OS.
+ *
+ * BIG SYSTEMS OS is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Public License Version 2 as published
+ * by the Free Software Foundation.
+ *
+ * BIG SYSTEMS OS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+#include "kernelInit.h"
 #include "paging/pageMapIndexer.h"
 #include "efiMemory.h"
 #include "paging/pageFrameAllocator.h"
@@ -5,18 +23,20 @@
 #include "paging/paging.h"
 #include "paging/pageTableManager.h"
 #include "gdt/gdt.h"
-#include "kernelInit.h"
 #include <stdint.h>
+
 
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
 
-void kernelInit(BootInfo* bootInfo) {
+void kernelInit(BootInfo* bootInfo)
+{
     kernelInit_memory(bootInfo);
 }
 
-void kernelInit_gdt(BootInfo *bootInfo) {
+void kernelInit_gdt(BootInfo *bootInfo)
+{
     GDTDescriptor gdtDescriptor;
     gdtDescriptor.size = sizeof(GDT) - 1; //becuase thats how they defined it
     gdtDescriptor.offset = (uint64_t) &DefaultGDT;
@@ -24,7 +44,8 @@ void kernelInit_gdt(BootInfo *bootInfo) {
 
 }
 
-void kernelInit_memory(BootInfo* bootInfo) {
+void kernelInit_memory(BootInfo* bootInfo)
+{
     pageFrameAllocator_readEfiMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescriptorSize);
 
     uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
@@ -43,7 +64,8 @@ void kernelInit_memory(BootInfo* bootInfo) {
 
     memory_memset(PML4, 0 , 4096);
 
-    for (uint64_t i = 0; i < memory_getSize(bootInfo->mMap, mMapEntries, bootInfo->mMapDescriptorSize); i+=4096) {
+    for (uint64_t i = 0; i < memory_getSize(bootInfo->mMap, mMapEntries, bootInfo->mMapDescriptorSize); i+=4096)
+    {
         pageTableManager_mapMemory(PML4, (void*)i, (void*)i);
     }
     
@@ -51,7 +73,8 @@ void kernelInit_memory(BootInfo* bootInfo) {
     uint64_t fbSize = (uint64_t)bootInfo->framebuffer->BufferSize + 4096;
     pageFrameAllocator_lockPages((void*) fbBase, fbSize / 4096 + 1);
 
-    for (uint64_t i = fbBase; i < fbBase + fbSize; i += 4096) {
+    for (uint64_t i = fbBase; i < fbBase + fbSize; i += 4096)
+    {
          pageTableManager_mapMemory(PML4, (void*)i, (void*)i);
     }
 
