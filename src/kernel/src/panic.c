@@ -18,11 +18,17 @@ void panic_panic(const char *message) {
 // these function will be removed in the future
 uint64_t row = 0, col = 0;
 void panic_test() {
-    drawString(framebuffer, font, makeColour(0, 0, 0, 255), "reached", col, row);
+    drawString(framebuffer, font, makeColour(255, 0, 0, 255), "reached", col, row);
     row+=16;
 }
 
 void panic_debug(const char* message) {
-     drawString(framebuffer, font, makeColour(0, 0, 0, 255), message, col, row);
-    row+=16;
+     drawString(framebuffer, font, makeColour(255, 0, 0, 255), message, col, row);
+    row+=16;col=0;
+}
+
+
+void panic_debug_char(char chr) {
+    drawChar(framebuffer, font, makeColour(255, 0, 0, 255), chr, col, row);
+    col+=8;
 }

@@ -14,6 +14,7 @@
 #include "panic.h"
 #include "io.h"
 #include "acpi.h"
+#include "pci.h"
 #include <stdint.h>
 
 
@@ -21,12 +22,10 @@ extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
 
 void kerenelInit_acpi(BootInfo* bootInfo) {
-    ACPI_SDTHeader* xsdt = (ACPI_SDTHeader*)(bootInfo->rootSystemDescriptorPointer->XSDTAddress);
-
-    for (int i = 0; i < 4; i++) {
-        drawChar(bootInfo->framebuffer, bootInfo->psf1_font, 0x000000ff, xsdt->signature[i], i*8, 16);
-    }
-
+    ACPI_SDTHeader* xsdt = (ACPI_SDTHeader*)bootInfo->rootSystemDescriptorPointer->XSDTAddress;
+    
+    ACPI_MCFGHeader* mcfg = (ACPI_MCFGHeader*)ACPI_findTable(xsdt, "MCFG");
+    pci_enumeratePCI(mcfg);
 }
 
 

@@ -29,3 +29,14 @@ typedef struct  __attribute__((packed)){
     ACPI_SDTHeader header;
     uint64_t reserved;
 } ACPI_MCFGHeader;
+
+typedef struct __attribute__((packed)){
+    uint64_t baseAddress;
+    uint16_t pciSegGroup;
+    uint8_t startBus;
+    uint8_t endBus;
+    uint32_t reserved;
+} ACPI_DeviceConfig;
+
+void* ACPI_findTable(ACPI_SDTHeader* sdtHeader, char* signature);
+

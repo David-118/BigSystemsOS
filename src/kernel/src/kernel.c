@@ -43,7 +43,7 @@ void _start(BootInfo* bootInfo)
     //Causes a page fault kernel panic
     // int* x = (int*) 0x800000000;
     // *x = 2;
-
+    /*
     clearScreen(bootInfo->framebuffer, makeColour(127, 255, 212, 255));
     fillRect(bootInfo->framebuffer, 0, 980, 1920, 100, makeColour(50, 255, 50, 255));
     fillCircle(bootInfo->framebuffer, 0, 0, 0, 0, 80, 80, 80, makeColour(255, 255, 0, 255));
@@ -56,10 +56,7 @@ void _start(BootInfo* bootInfo)
 
     //unsigned const BORDERWIDTH = 10;
     //fillOutlinedRect(bootInfo->framebuffer, 10, 10, 1200, 1000, BORDERWIDTH, 0xff909090, 0xff0000ff);
-
-    panic_debug(uint_to_hex((uint64_t)bootInfo->rootSystemDescriptorPointer));
-    panic_debug((const char*)bootInfo->rootSystemDescriptorPointer);
-
+    */
     while (true){
         asm("hlt");
     }; //stops the os from dying

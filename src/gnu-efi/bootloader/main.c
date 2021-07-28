@@ -190,7 +190,6 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		if (CompareGuid(&configTable[index].VendorGuid, &Acpi2TableGuid)) {
 			if (stringComapre((CHAR8*)"RSD PTR", (CHAR8*)configTable->VendorTable, 8)) {
 				rsdp = (void*) configTable->VendorTable;
-				break;
 			}
 		}
 		configTable++;
